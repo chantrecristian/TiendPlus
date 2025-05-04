@@ -8,7 +8,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
@@ -25,8 +25,9 @@ public class InventarioView extends VerticalLayout {
     // Campos del formulario
     private TextField nombre = new TextField("Nombre");
     private TextArea descripcion = new TextArea("Descripción");
-    private NumberField precio = new NumberField("Precio");
-    private NumberField cantidad = new NumberField("Cantidad");
+    private IntegerField precio = new IntegerField("Precio");
+    private IntegerField cantidad = new IntegerField("Cantidad");
+
 
     @Autowired
     public InventarioView(ProductoRepository repository) {
@@ -108,6 +109,6 @@ public class InventarioView extends VerticalLayout {
         nombre.setValue(producto.getNombre());
         descripcion.setValue(producto.getDescripcion());
         precio.setValue(producto.getPrecio());
-        cantidad.setValue((double) producto.getCantidad());
+        cantidad.setValue((Integer) producto.getCantidad()); 
     }
 }
