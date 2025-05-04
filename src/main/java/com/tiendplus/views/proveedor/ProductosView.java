@@ -2,7 +2,6 @@ package com.tiendplus.views.proveedor;
 
 import com.tiendplus.views.proveedor.grids.ProductoGrid;
 import com.tiendplus.models.Producto;
-import com.tiendplus.models.Proveedor;
 import com.tiendplus.repositories.ProductoRepository;
 import com.tiendplus.repositories.ProveedorRepository;
 import com.vaadin.flow.component.button.Button;
