@@ -3,7 +3,7 @@ package com.tiendplus.models;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "productos")
+@Table(name = "inventario")
 public class Producto {
 
     @Id
