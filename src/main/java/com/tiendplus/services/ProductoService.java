@@ -2,28 +2,31 @@ package com.tiendplus.services;
 
 import com.tiendplus.models.Producto;
 import com.tiendplus.repositories.ProductoRepository;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+import jakarta.transaction.Transactional;
+
 @Service
+@Transactional // Asegúrate de que esté aquí
 public class ProductoService {
 
-    private final ProductoRepository repository;
+    private final ProductoRepository productoRepository;
 
-    public ProductoService(ProductoRepository repository) {
-        this.repository = repository;
+    public ProductoService(ProductoRepository productoRepository) {
+        this.productoRepository = productoRepository;
     }
 
-    public List<Producto> findAll() {
-        return repository.findAll();
-    }
-
-    public Producto save(Producto producto) {
-        return repository.save(producto);
+    public void save(Producto producto) {
+        productoRepository.save(producto);
     }
 
     public void delete(Producto producto) {
-        repository.delete(producto);
+        productoRepository.delete(producto);
+    }
+
+    public List<Producto> findAll() {
+        return productoRepository.findAll();
     }
 }

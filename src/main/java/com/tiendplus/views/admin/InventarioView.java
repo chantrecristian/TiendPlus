@@ -1,7 +1,7 @@
 package com.tiendplus.views.admin;
 
 import com.tiendplus.models.Producto;
-import com.tiendplus.repositories.ProductoRepository;
+import com.tiendplus.services.ProductoService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
@@ -14,13 +14,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route("admin/inventario")
+@Route("inventario")
 public class InventarioView extends VerticalLayout {
 
     private Grid<Producto> grid = new Grid<>(Producto.class, false);
     private Producto productoSeleccionado = null;
 
-    private final ProductoRepository repository;
+    private final ProductoService productoService;
 
     // Campos del formulario
     private TextField nombre = new TextField("Nombre");
@@ -29,8 +29,8 @@ public class InventarioView extends VerticalLayout {
     private NumberField cantidad = new NumberField("Cantidad");
 
     @Autowired
-    public InventarioView(ProductoRepository repository) {
-        this.repository = repository;
+    public InventarioView(ProductoService productoService) {
+        this.productoService = productoService;
 
         setSizeFull();
         setPadding(true);
@@ -45,7 +45,7 @@ public class InventarioView extends VerticalLayout {
         grid.addColumn(Producto::getPrecio).setHeader("Precio");
         grid.addColumn(Producto::getCantidad).setHeader("Cantidad");
 
-        grid.setItems(repository.findAll()); // Cargar productos desde BD
+        grid.setItems(productoService.findAll()); // Cargar productos desde el servicio
         grid.asSingleSelect().addValueChangeListener(e -> {
             productoSeleccionado = e.getValue();
             if (productoSeleccionado != null) {
@@ -74,23 +74,23 @@ public class InventarioView extends VerticalLayout {
             nuevo.setDescripcion(descripcion.getValue());
             nuevo.setPrecio(precio.getValue());
             nuevo.setCantidad(cantidad.getValue().intValue());
-            repository.save(nuevo);
+            productoService.save(nuevo);
         } else {
             productoSeleccionado.setNombre(nombre.getValue());
             productoSeleccionado.setDescripcion(descripcion.getValue());
             productoSeleccionado.setPrecio(precio.getValue());
             productoSeleccionado.setCantidad(cantidad.getValue().intValue());
-            repository.save(productoSeleccionado);
+            productoService.save(productoSeleccionado);
         }
 
-        grid.setItems(repository.findAll()); // Refrescar
+        grid.setItems(productoService.findAll()); // Refrescar
         limpiarFormulario();
     }
 
     private void eliminarProducto() {
         if (productoSeleccionado != null) {
-            repository.delete(productoSeleccionado);
-            grid.setItems(repository.findAll()); // Refrescar
+            productoService.delete(productoSeleccionado);
+            grid.setItems(productoService.findAll()); // Refrescar
             limpiarFormulario();
         }
     }

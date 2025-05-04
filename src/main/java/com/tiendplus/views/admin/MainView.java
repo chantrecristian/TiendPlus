@@ -1,15 +1,17 @@
 package com.tiendplus.views.admin;
 
 import java.util.Optional;
-
 import com.tiendplus.views.cajero.VentasView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.avatar.Avatar;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -19,6 +21,8 @@ import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinSession;
+
 
 @Route("menu-admin")
 public class MainView extends AppLayout {
@@ -48,15 +52,37 @@ public class MainView extends AppLayout {
         DrawerToggle toggle = new DrawerToggle();
         layout.add(toggle);
 
-        viewTitle = new H1("TiendPlus");
-        viewTitle.getStyle().set("font-size", "1.5em");
-        viewTitle.getStyle().set("margin", "0");
+        // Título centrado visualmente
+        viewTitle = new H1("TiendPlussss");
+        viewTitle.getStyle()
+                .set("font-size", "1.5em")
+                .set("margin", "0");
 
-        layout.add(viewTitle);
-        layout.expand(viewTitle);
+        HorizontalLayout titleWrapper = new HorizontalLayout(viewTitle);
+        titleWrapper.setWidthFull();
+        titleWrapper.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+        titleWrapper.setAlignItems(FlexComponent.Alignment.CENTER);
 
-        Image avatar = new Image("images/user.svg", "Usuario");
-        avatar.setHeight("32px");
+        layout.add(titleWrapper);
+
+        // Avatar con menú
+        Avatar avatar = new Avatar("Usuario");
+        avatar.setImage("icons/user.png");
+        avatar.setHeight("36px");
+        avatar.setWidth("36px");
+
+        ContextMenu userMenu = new ContextMenu(avatar);
+        userMenu.setOpenOnClick(true);
+
+        userMenu.addItem("Perfil", e -> {
+            Notification.show("Funcionalidad de perfil próximamente...");
+        });
+
+        userMenu.addItem("Cerrar sesión", e -> {
+            VaadinSession.getCurrent().close();
+            getUI().ifPresent(ui -> ui.getPage().setLocation("login"));
+        });
+
         layout.add(avatar);
 
         return layout;
@@ -69,8 +95,7 @@ public class MainView extends AppLayout {
         layout.setSpacing(true);
         layout.setAlignItems(FlexComponent.Alignment.STRETCH);
 
-        // Logo
-        Image logo = new Image("images/logo.png", "Logo");
+        Image logo = new Image("images/tienda1.jpeg", "Logo");
         logo.setHeight("60px");
 
         Span title = new Span("TiendPlus Admin");
@@ -107,7 +132,6 @@ public class MainView extends AppLayout {
 
     private static Tab createTab(String text, Class<? extends Component> navigationTarget) {
         RouterLink link = new RouterLink(text, navigationTarget);
-        // Removed invalid HighlightCondition field usage
         Tab tab = new Tab(link);
         ComponentUtil.setData(tab, Class.class, navigationTarget);
         return tab;
