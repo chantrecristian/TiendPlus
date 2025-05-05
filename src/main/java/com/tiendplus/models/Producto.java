@@ -1,8 +1,15 @@
 package com.tiendplus.models;
 
-import jakarta.persistence.*;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.ManyToOne;
+// Indica que esta clase es una entidad JPA, es decir, se mapeará a una tabla en la base de datos
 @Entity
+
+// Define el nombre de la tabla en la base de datos como "inventario"
 @Table(name = "inventario")
 public class Producto {
 
@@ -12,13 +19,18 @@ public class Producto {
 
     //campos
     private String nombre;
-    private String descripcion;
-    private Integer precio;
-    private Integer cantidad;
-    
 
+    // Descripción del producto
+    private String descripcion;
+
+    // Precio del producto
+    private double precio;
+
+    // Cantidad disponible del producto en inventario
+    private Integer cantidad;
+
+    // Relación muchos-a-uno con la entidad Proveedor (varios productos pueden tener el mismo proveedor)
     @ManyToOne
-    @JoinColumn(name = "proveedor_id")
     private Proveedor proveedor;
 
     // Constructor
@@ -35,21 +47,52 @@ public class Producto {
     }
 
     // Getters y Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
 
-    public String getNombre() { return nombre; }
-    public void setNombre(String nombre) { this.nombre = nombre; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public Integer getPrecio() { return precio; }
-    public void setPrecio(Integer precio) { this.precio = precio; }
+    public String getNombre() {
+        return nombre;
+    }
 
-    public Integer getCantidad() { return cantidad; }
-    public void setCantidad(Integer cantidad) { this.cantidad = cantidad; }
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public Proveedor getProveedor() { return proveedor; }
-    public void setProveedor(Proveedor proveedor) { this.proveedor = proveedor; }
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public Proveedor getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(Proveedor proveedor) {
+        this.proveedor = proveedor;
+    }
 }

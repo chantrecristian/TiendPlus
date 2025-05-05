@@ -19,7 +19,7 @@ public class ProductoForm extends FormLayout{//Formulario visual para crear, edi
     // Campos del producto
     private final TextField nombre = new TextField("Nombre del producto");
     private final TextField descripcion = new TextField("Descripcion");
-    private IntegerField precio = new IntegerField("Precio");
+    private TextField precio = new TextField("Precio");
     private IntegerField cantidad = new IntegerField("Cantidad");
 
 
@@ -55,7 +55,7 @@ public class ProductoForm extends FormLayout{//Formulario visual para crear, edi
             // Carga los valores del producto en el formulario
             nombre.setValue(producto.getNombre() != null ? producto.getNombre() : "");
             descripcion.setValue(producto.getDescripcion() != null ? producto.getDescripcion() : "");
-            precio.setValue(producto.getPrecio() != null ? producto.getPrecio() : 0);
+            precio.setValue(producto.getPrecio() != 0.0 ? String.valueOf(producto.getPrecio()) : "0");
             cantidad.setValue(producto.getCantidad() != null ? producto.getCantidad() : 0);
             proveedorComboBox.setValue(producto.getProveedor());
     
@@ -75,7 +75,7 @@ public class ProductoForm extends FormLayout{//Formulario visual para crear, edi
         // Actualiza el objeto producto con los valores del formulario
         producto.setNombre(nombre.getValue());
         producto.setDescripcion(descripcion.getValue());
-        producto.setPrecio(precio.getValue());
+        producto.setPrecio(Double.parseDouble(precio.getValue()));
         producto.setCantidad(cantidad.getValue());
         producto.setProveedor(proveedorComboBox.getValue());
         // Llama al guardado
