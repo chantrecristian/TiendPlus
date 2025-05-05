@@ -13,7 +13,6 @@ import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -87,7 +86,13 @@ public class MainView extends AppLayout {
         // Menú que se despliega al hacer clic en el avatar
         ContextMenu userMenu = new ContextMenu(avatar);
         userMenu.setOpenOnClick(true);
-        userMenu.addItem("Perfil", e -> Notification.show("Funcionalidad de perfil próximamente..."));
+        userMenu.addItem("Provedor", e -> {
+            getUI().ifPresent(ui -> ui.navigate("proveedor/productos"));
+        });
+        userMenu.addItem("Cajero", e -> {
+            getUI().ifPresent(ui -> ui.navigate("En uso proximamente"));
+        });
+        
         userMenu.addItem("Cerrar sesión", e -> {
             // Cierra la sesión actual y redirige a la página de login
             VaadinSession.getCurrent().close();

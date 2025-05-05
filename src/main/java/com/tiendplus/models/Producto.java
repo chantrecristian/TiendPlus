@@ -5,46 +5,95 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.ManyToOne;
+// Indica que esta clase es una entidad JPA, es decir, se mapeará a una tabla en la base de datos
+@Entity
 
-// La clase Producto está mapeada a la tabla "inventario" en la base de datos.
-@Entity // Marca esta clase como una entidad JPA para que se mapee a una tabla en la base de datos
-@Table(name = "inventario") // Define el nombre de la tabla en la base de datos, que será "inventario"
+// Define el nombre de la tabla en la base de datos como "inventario"
+@Table(name = "inventario")
 public class Producto {
-    
-    // La propiedad 'id' es la clave primaria de la entidad
-    @Id // Marca el campo como la clave primaria de la tabla
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Establece que el ID será generado automáticamente y se utilizará una estrategia de identidad (auto-incremento)
-    private Long id;
-    
-    private String nombre; // Nombre del producto
-    private String descripcion; // Descripción del producto
-    private double precio; // Precio del producto
-    private int cantidad; // Cantidad disponible en el inventario
 
-    // Constructores
-    public Producto() {} // Constructor vacío (sin parámetros), necesario para JPA
-    public Producto(Long id, String nombre, String descripcion, double precio, int cantidad) {
+    // Identificador único de la entidad, se genera automáticamente con una estrategia de identidad
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    // Nombre del producto
+    private String nombre;
+
+    // Descripción del producto
+    private String descripcion;
+
+    // Precio del producto
+    private double precio;
+
+    // Cantidad disponible del producto en inventario
+    private Integer cantidad;
+
+    // Relación muchos-a-uno con la entidad Proveedor (varios productos pueden tener el mismo proveedor)
+    @ManyToOne
+    private Proveedor proveedor;
+
+    // Constructor vacío requerido por JPA
+    public Producto() {}
+
+    // Constructor con parámetros para crear un producto con todos sus atributos
+    public Producto(Long id, String nombre, String descripcion, double precio, Integer cantidad, Proveedor proveedor) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
         this.cantidad = cantidad;
+        this.proveedor = proveedor;
     }
 
-    // Getters y Setters para los atributos
+    // Getters y Setters
 
-    public Long getId() { return id; } // Retorna el ID del producto
-    public void setId(Long id) { this.id = id; } // Establece el ID del producto
+    public Long getId() {
+        return id;
+    }
 
-    public String getNombre() { return nombre; } // Retorna el nombre del producto
-    public void setNombre(String nombre) { this.nombre = nombre; } // Establece el nombre del producto
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getDescripcion() { return descripcion; } // Retorna la descripción del producto
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; } // Establece la descripción del producto
+    public String getNombre() {
+        return nombre;
+    }
 
-    public double getPrecio() { return precio; } // Retorna el precio del producto
-    public void setPrecio(double precio) { this.precio = precio; } // Establece el precio del producto
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
 
-    public int getCantidad() { return cantidad; } // Retorna la cantidad del producto en inventario
-    public void setCantidad(int cantidad) { this.cantidad = cantidad; } // Establece la cantidad del producto en inventario
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
+
+    public Integer getCantidad() {
+        return cantidad;
+    }
+
+    public void setCantidad(Integer cantidad) {
+        this.cantidad = cantidad;
+    }
+
+    public Proveedor getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(Proveedor proveedor) {
+        this.proveedor = proveedor;
+    }
 }
