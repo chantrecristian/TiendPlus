@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-@Route("proveedor/productos")
+@Route(value = "proveedor/productos", layout = MainLayout2.class)
 public class ProductosView extends VerticalLayout {
 
     private final ProductoRepository productoRepository;
