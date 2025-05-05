@@ -10,7 +10,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import com.tiendplus.services.UsuarioService;
 
-@Route("login")  // Define la ruta para acceder a esta vista
+@Route("login") // Define la ruta para acceder a esta vista
 public class LoginView extends VerticalLayout {
 
     private final UsuarioService usuarioService;  // Inyección del servicio para validar el login
@@ -20,6 +20,8 @@ public class LoginView extends VerticalLayout {
 
         // Configura el diseño de la página
         setSizeFull();  // Establece que el layout ocupe toda la pantalla
+        setHeight("calc(80vh - 64px)"); // Ajusta la altura, restando el alto de la barra
+        setPadding(false);
         setAlignItems(Alignment.CENTER);  // Centra los elementos verticalmente
         setJustifyContentMode(JustifyContentMode.CENTER);  // Centra los elementos horizontalmente
         getStyle().set("background", "linear-gradient(135deg, #f3f4f6, #e0e7ff)");  // Establece un fondo con gradiente
