@@ -7,10 +7,11 @@ import java.util.List;
 @Table(name = "proveedores")
 public class Proveedor {
 
-    @Id
+    @Id //clave primaria
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Atributos del proveedor
     private String nombre;
     private String correo;
     private String telefono;

@@ -14,9 +14,9 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.tiendplus.models.Proveedor;
 import java.util.List;
 
-public class ProductoForm extends FormLayout{
-    private final ComboBox<Proveedor> proveedorComboBox = new ComboBox<>("Proveedor");
-    
+public class ProductoForm extends FormLayout{//Formulario visual para crear, editar o eliminar un producto.
+    private final ComboBox<Proveedor> proveedorComboBox = new ComboBox<>("Proveedor");// ComboBox para seleccionar proveedor
+    // Campos del producto
     private final TextField nombre = new TextField("Nombre del producto");
     private final TextField descripcion = new TextField("Descripcion");
     private IntegerField precio = new IntegerField("Precio");
@@ -43,28 +43,28 @@ public class ProductoForm extends FormLayout{
         cancelar.addClickListener(e -> setProducto(null)); // Ocultar el formulario
         eliminar.addClickListener(e -> eliminar());
     }
-
+    //proveedores disponibles en el ComboBox.
     public void setProveedores(List<Proveedor> proveedores) {
         proveedorComboBox.setItems(proveedores);
         proveedorComboBox.setItemLabelGenerator(Proveedor::getNombre); // Muestra nombre
     }     
-
+    //Establece el producto a editar o crea uno nuevo, También llena los campos con los datos del producto.
     public void setProducto(Producto producto) {
         this.producto = producto;
-    
         if (producto != null) {
+            // Carga los valores del producto en el formulario
             nombre.setValue(producto.getNombre() != null ? producto.getNombre() : "");
             descripcion.setValue(producto.getDescripcion() != null ? producto.getDescripcion() : "");
             precio.setValue(producto.getPrecio() != null ? producto.getPrecio() : 0);
             cantidad.setValue(producto.getCantidad() != null ? producto.getCantidad() : 0);
             proveedorComboBox.setValue(producto.getProveedor());
     
-            setVisible(true); // 👈 Mostrar siempre que producto no sea null
+            setVisible(true);//muestra el formulario
         } else {
-            setVisible(false);
+            setVisible(false);//oculta el formulario
         }
     }    
-    
+    //metodo al presionar guardar y actualizar
     private void guardar() {
         if (producto == null) return;
     
@@ -72,30 +72,31 @@ public class ProductoForm extends FormLayout{
             Notification.show("Debe seleccionar un proveedor");
             return;
         }
-    
+        // Actualiza el objeto producto con los valores del formulario
         producto.setNombre(nombre.getValue());
         producto.setDescripcion(descripcion.getValue());
         producto.setPrecio(precio.getValue());
         producto.setCantidad(cantidad.getValue());
         producto.setProveedor(proveedorComboBox.getValue());
-    
+        // Llama al guardado
         if (onSave != null) {
             onSave.accept(producto);
         }
     
-        setProducto(null);
+        setProducto(null);//Limpia y oculta el formulario
         Notification.show("Producto guardado");
     }   
+    //metodo al presionar eliminar 
     private void eliminar() {
         if (producto != null && onDelete != null) {
             onDelete.accept(producto);
         }
     }
-     
+    // Setter para el callback que se ejecuta al guardar un producto
     public void setOnSave(Consumer<Producto> handler) {
         this.onSave = handler;
     }
-    
+    // Setter para el callback que se ejecuta al eliminar un producto
     public void setOnDelete(Consumer<Producto> handler) {
         this.onDelete = handler;
     }

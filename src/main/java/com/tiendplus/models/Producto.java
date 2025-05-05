@@ -6,10 +6,11 @@ import jakarta.persistence.*;
 @Table(name = "inventario")
 public class Producto {
 
-    @Id
+    @Id // clave primaria
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //campos
     private String nombre;
     private String descripcion;
     private Integer precio;
@@ -20,9 +21,10 @@ public class Producto {
     @JoinColumn(name = "proveedor_id")
     private Proveedor proveedor;
 
-    // Constructores
+    // Constructor
     public Producto() {}
 
+    // Constructor con parametros
     public Producto(Long id, String nombre, String descripcion, Integer precio, Integer cantidad, Proveedor proveedor) {
         this.id = id;
         this.nombre = nombre;

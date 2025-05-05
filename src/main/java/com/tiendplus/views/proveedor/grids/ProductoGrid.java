@@ -8,13 +8,14 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class ProductoGrid extends VerticalLayout {
+    // Grid para mostrar productos
     private final Grid<Producto> grid;
 
     public ProductoGrid() {
-        grid = new Grid<>(Producto.class);
-        grid.removeAllColumns(); // Eliminamos las columnas por defecto
+        grid = new Grid<>(Producto.class);  // Inicializa el grid
+        grid.removeAllColumns(); 
 
-        // Agregamos columnas personalizadas
+        // columnas personalizadas
         grid.addColumn(Producto::getId).setHeader("ID");
         grid.addColumn(Producto::getNombre).setHeader("Nombre");
         grid.addColumn(Producto::getDescripcion).setHeader("Descripción");
@@ -30,7 +31,7 @@ public class ProductoGrid extends VerticalLayout {
         add(grid);
         setSizeFull();
     }
-
+    //Método para actualizar los productos que se muestran en el grid.
     public void setItems(List<Producto> items) {
         grid.setItems(items);
     }
