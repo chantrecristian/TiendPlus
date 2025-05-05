@@ -11,10 +11,12 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@Route("inventario")
+@Route(value = "inventario", layout = MainView.class)
+@PageTitle("Inventario")
 public class InventarioView extends VerticalLayout {
 
     private Grid<Producto> grid = new Grid<>(Producto.class, false);
@@ -35,6 +37,7 @@ public class InventarioView extends VerticalLayout {
         setSizeFull();
         setPadding(true);
 
+        // ✅ Botón corregido para navegar al dashboard (pantalla de bienvenida)
         Button volverBtn = new Button("Volver al Menú");
         volverBtn.addClickListener(e -> volverBtn.getUI().ifPresent(ui -> ui.navigate("menu-admin")));
 

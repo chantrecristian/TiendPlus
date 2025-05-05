@@ -1,6 +1,7 @@
 package com.tiendplus;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import java.time.Clock;
 
 @SpringBootApplication
+@Route("login")
 @Theme("default")
 public class Application implements AppShellConfigurator {
 

@@ -3,7 +3,6 @@ package com.tiendplus.views.admin;
 import java.util.Optional;
 
 import com.tiendplus.views.cajero.VentasView;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -21,12 +20,9 @@ import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinSession;
 
-@Route("menu-admin")
-@PageTitle("Menú")
 public class MainView extends AppLayout {
 
     private final Tabs menu;
@@ -41,9 +37,6 @@ public class MainView extends AppLayout {
         // Menú lateral
         menu = createMenu();
         addToDrawer(createDrawerContent(menu));
-
-        // Pantalla de bienvenida con accesos rápidos
-        setContent(createWelcomeContent());
     }
 
     // HEADER
@@ -86,7 +79,7 @@ public class MainView extends AppLayout {
         return layout;
     }
 
-    // DRAWER (Menú lateral)
+    // DRAWER
     private Component createDrawerContent(Tabs menu) {
         VerticalLayout layout = new VerticalLayout();
         layout.setSizeFull();
@@ -122,6 +115,7 @@ public class MainView extends AppLayout {
         tabs.setWidthFull();
         tabs.setId("tabs");
 
+        tabs.add(createTab("Inicio", MenuAdminView.class));
         tabs.add(createTab("Inventario", InventarioView.class));
         tabs.add(createTab("Ventas", VentasView.class));
         tabs.add(createTab("Reportes", ReportesView.class));
@@ -136,55 +130,6 @@ public class MainView extends AppLayout {
         return tab;
     }
 
-    // BIENVENIDA + ACCESOS RÁPIDOS
-    private Component createWelcomeContent() {
-        VerticalLayout contentLayout = new VerticalLayout();
-        contentLayout.setSizeFull();
-        contentLayout.setPadding(true);
-        contentLayout.setAlignItems(FlexComponent.Alignment.CENTER);
-
-        Span bienvenida = new Span("Bienvenido al menú");
-        bienvenida.getStyle().set("font-size", "1.8em").set("font-weight", "bold");
-
-        Span subtitulo = new Span("Gestiona tu tienda de manera rápida y sencilla.");
-        subtitulo.getStyle().set("font-size", "1.1em").set("color", "gray");
-
-        HorizontalLayout accesos = new HorizontalLayout();
-        accesos.setSpacing(true);
-        accesos.setPadding(true);
-
-        VerticalLayout inventarioCard = createCard("📦 Inventario", "Administra tus productos", "inventario");
-        VerticalLayout ventasCard = createCard("💵 Ventas", "Revisa tus transacciones", "ventas");
-        VerticalLayout reportesCard = createCard("📊 Reportes", "Visualiza tus informes", "reportes");
-
-        accesos.add(inventarioCard, ventasCard, reportesCard);
-
-        contentLayout.add(bienvenida, subtitulo, accesos);
-        return contentLayout;
-    }
-
-    private VerticalLayout createCard(String title, String description, String route) {
-        VerticalLayout card = new VerticalLayout();
-        card.getStyle().set("border", "1px solid #ccc");
-        card.getStyle().set("border-radius", "12px");
-        card.getStyle().set("padding", "16px");
-        card.getStyle().set("width", "200px");
-        card.getStyle().set("cursor", "pointer");
-        card.getStyle().set("box-shadow", "2px 2px 6px rgba(0,0,0,0.1)");
-
-        Span titleLabel = new Span(title);
-        titleLabel.getStyle().set("font-weight", "bold");
-
-        Span descLabel = new Span(description);
-        descLabel.getStyle().set("font-size", "0.9em").set("color", "gray");
-
-        card.add(titleLabel, descLabel);
-        card.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(route)));
-
-        return card;
-    }
-
-    // Actualiza el título según navegación
     @Override
     protected void afterNavigation() {
         super.afterNavigation();
