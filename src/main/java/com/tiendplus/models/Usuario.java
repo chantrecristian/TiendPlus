@@ -5,19 +5,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-@Table(name = "usuarios") // Asegúrate de que la tabla se llame "usuarios" en la base de datos
-@Entity
+// La clase Usuario está mapeada a una tabla "usuarios" en la base de datos.
+@Table(name = "usuarios") // Define el nombre de la tabla en la base de datos, que será "usuarios"
+@Entity // Marca esta clase como una entidad JPA para que se mapee a una tabla en la base de datos
 public class Usuario {
 
+    // El ID es la clave primaria de la entidad
     @Id
     @GeneratedValue // Esto genera el ID automáticamente (puedes ajustar el tipo de generación según lo necesites)
     private Long id;
-    private String nombre;
-    private String correo;
-    private String contraseña;
-    private String rol;
+    
+    private String nombre; // Nombre del usuario
+    private String correo; // Correo electrónico del usuario
+    private String contraseña; // Contraseña del usuario
+    private String rol; // Rol del usuario (por ejemplo: "admin", "cajero", etc.)
 
-    // Getters y setters
+    // Getters y setters para los atributos
 
     public Long getId() {
         return id;
@@ -59,8 +62,8 @@ public class Usuario {
         this.rol = rol;
     }
 
-    // Lógica de validación de contraseña
+    // Método para validar la contraseña
     public boolean validarContraseña(String contraseña) {
-        return this.contraseña.equals(contraseña); // Compara la contraseña con la almacenada en la base de datos
+        return this.contraseña.equals(contraseña); // Compara la contraseña proporcionada con la almacenada en la base de datos
     }
 }
