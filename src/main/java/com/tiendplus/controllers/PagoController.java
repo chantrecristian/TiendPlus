@@ -1,6 +1,5 @@
 package com.tiendplus.controllers;
 
-import com.tiendplus.models.Venta;
 import com.tiendplus.repositories.VentaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
