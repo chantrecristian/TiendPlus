@@ -10,7 +10,7 @@ import jakarta.persistence.ManyToOne;
 @Entity
 
 // Define el nombre de la tabla en la base de datos como "inventario"
-@Table(name = "inventario")
+@Table(name = "productos")
 public class Producto {
 
     @Id // clave primaria
