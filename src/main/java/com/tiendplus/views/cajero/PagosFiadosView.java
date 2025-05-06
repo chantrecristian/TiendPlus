@@ -37,7 +37,7 @@ public class PagosFiadosView extends VerticalLayout {
 
     @PostConstruct
     public void init() {
-        idClienteField = new TextField("ID del Cliente");
+        idClienteField = new TextField("Numero Documento del Cliente");
         
         buscarButton = new Button("Buscar Ventas Fiadas", e -> {
             Notification.show("Botón presionado! 🔍"); // 🔥 Confirma que el botón funciona
@@ -45,7 +45,7 @@ public class PagosFiadosView extends VerticalLayout {
         });
 
         ventasGrid = new Grid<>(Venta.class);
-        ventasGrid.setColumns("id", "fechaVenta", "total", "metodoPago"); 
+        ventasGrid.setColumns("Numero de Documento", "fechaVenta", "total", "metodoPago"); 
         ventasGrid.asSingleSelect().addValueChangeListener(e -> ventaSeleccionada = e.getValue());
 
         pagarEfectivoBtn = new Button("Pagar en Efectivo", e -> pagarVenta("EFECTIVO"));
