@@ -1,37 +1,53 @@
 package com.tiendplus.models;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.ManyToOne;
+// Indica que esta clase es una entidad JPA, es decir, se mapeará a una tabla en la base de datos
 @Entity
+
+// Define el nombre de la tabla en la base de datos como "inventario"
 @Table(name = "productos")
 public class Producto {
 
-    @Id
+    @Id // clave primaria
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    //campos
     private String nombre;
+
+    // Descripción del producto
     private String descripcion;
+
+    // Precio del producto
     private double precio;
-    private int cantidad;
 
-    // Constructores
-    public Producto() {
-    }
+    // Cantidad disponible del producto en inventario
+    private Integer cantidad;
 
-    public Producto(Long id, String nombre, String descripcion, double precio, int cantidad) {
+    // Relación muchos-a-uno con la entidad Proveedor (varios productos pueden tener el mismo proveedor)
+    @ManyToOne
+    private Proveedor proveedor;
+
+    // Constructor
+    public Producto() {}
+
+    // Constructor con parametros
+    public Producto(Long id, String nombre, String descripcion, Integer precio, Integer cantidad, Proveedor proveedor) {
         this.id = id;
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
         this.cantidad = cantidad;
+        this.proveedor = proveedor;
     }
 
     // Getters y Setters
+
     public Long getId() {
         return id;
     }
@@ -64,11 +80,19 @@ public class Producto {
         this.precio = precio;
     }
 
-    public int getCantidad() {
+    public Integer getCantidad() {
         return cantidad;
     }
 
-    public void setCantidad(int cantidad) {
+    public void setCantidad(Integer cantidad) {
         this.cantidad = cantidad;
+    }
+
+    public Proveedor getProveedor() {
+        return proveedor;
+    }
+
+    public void setProveedor(Proveedor proveedor) {
+        this.proveedor = proveedor;
     }
 }

@@ -41,7 +41,7 @@ public class RegistrarVentaView extends VerticalLayout {
     private double totalVenta = 0;  // Variable para almacenar el total de la venta
 
     // Campos de entrada para capturar la información del producto
-    private final TextField codigoProducto = new TextField("ID Producto");
+    private final TextField codigoProducto = new TextField("Id");
     private final TextField nombreProducto = new TextField("Nombre");
     private final NumberField precioUnitario = new NumberField("Precio Unitario");
     private final NumberField cantidadField = new NumberField("Cantidad");
