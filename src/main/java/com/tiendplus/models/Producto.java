@@ -1,42 +1,33 @@
 package com.tiendplus.models;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-// Indica que esta clase es una entidad JPA, es decir, se mapeará a una tabla en la base de datos
-@Entity
+import jakarta.persistence.Table;
 
-// Define el nombre de la tabla en la base de datos como "inventario"
+@Entity
 @Table(name = "inventario")
 public class Producto {
 
-    @Id // clave primaria
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //campos
     private String nombre;
 
-    // Descripción del producto
     private String descripcion;
 
-    // Precio del producto
     private double precio;
 
-    // Cantidad disponible del producto en inventario
     private Integer cantidad;
 
-    // Relación muchos-a-uno con la entidad Proveedor (varios productos pueden tener el mismo proveedor)
     @ManyToOne
     private Proveedor proveedor;
 
-    // Constructor
     public Producto() {}
 
-    // Constructor con parametros
     public Producto(Long id, String nombre, String descripcion, Integer precio, Integer cantidad, Proveedor proveedor) {
         this.id = id;
         this.nombre = nombre;
@@ -45,8 +36,6 @@ public class Producto {
         this.cantidad = cantidad;
         this.proveedor = proveedor;
     }
-
-    // Getters y Setters
 
     public Long getId() {
         return id;
