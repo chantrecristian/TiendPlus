@@ -78,8 +78,14 @@ public class RegistrarVentaView extends VerticalLayout {
         // Listener para buscar el producto cuando se cambia el código
         codigoProducto.addValueChangeListener(event -> buscarProducto());
 
+        // 🔄 Listener para recalcular el subtotal automáticamente
+        cantidadField.addValueChangeListener(event -> calcularSubtotal());
+        precioUnitario.addValueChangeListener(event -> calcularSubtotal());
+
         // Layout para los campos de entrada
-        HorizontalLayout inputs = new HorizontalLayout(codigoProducto, nombreProducto, precioUnitario, cantidadField, subtotalField, agregarBtn);
+        HorizontalLayout inputs = new HorizontalLayout(
+            codigoProducto, nombreProducto, precioUnitario, cantidadField, subtotalField, agregarBtn
+        );
         
         // Configuración de las columnas del grid
         grid.setColumns("producto.nombre", "cantidad", "precioUnitario", "subtotal");
@@ -266,7 +272,7 @@ public class RegistrarVentaView extends VerticalLayout {
             return;
         }
 
-        Cliente cliente = clienteRepo.findByIdentificacion(idCliente);
+        Cliente cliente = clienteRepo.findByNDocumento(idCliente);
 
         if (cliente == null) {
             cliente = new Cliente();

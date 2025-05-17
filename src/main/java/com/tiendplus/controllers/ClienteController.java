@@ -5,6 +5,7 @@ import com.tiendplus.repositories.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/clientes")
 public class ClienteController {
@@ -21,6 +22,6 @@ public class ClienteController {
     // 🔍 Buscar cliente por documento
     @GetMapping("/buscar/{documento}")
     public Cliente buscarCliente(@PathVariable String documento) {
-        return clienteRepository.findByIdentificacion(documento);
+        return clienteRepository.findByNDocumento(documento);
     }
 }

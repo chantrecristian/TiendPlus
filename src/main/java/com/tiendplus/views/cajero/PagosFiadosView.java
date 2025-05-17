@@ -45,7 +45,7 @@ public class PagosFiadosView extends VerticalLayout {
         });
 
         ventasGrid = new Grid<>(Venta.class);
-        ventasGrid.setColumns("Numero de Documento", "fechaVenta", "total", "metodoPago"); 
+        ventasGrid.setColumns("id", "fechaVenta", "total", "metodoPago"); 
         ventasGrid.asSingleSelect().addValueChangeListener(e -> ventaSeleccionada = e.getValue());
 
         pagarEfectivoBtn = new Button("Pagar en Efectivo", e -> pagarVenta("EFECTIVO"));
