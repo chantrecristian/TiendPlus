@@ -90,7 +90,7 @@ public class MainView extends AppLayout {
             getUI().ifPresent(ui -> ui.navigate("proveedor/productos"));
         });
         userMenu.addItem("Cajero", e -> {
-            getUI().ifPresent(ui -> ui.navigate("En uso proximamente"));
+            getUI().ifPresent(ui -> ui.navigate("registrar-venta"));
         });
         
         userMenu.addItem("Cerrar sesión", e -> {
