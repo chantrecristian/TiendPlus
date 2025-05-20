@@ -37,7 +37,7 @@ public class PagosFiadosView extends VerticalLayout {
 
     @PostConstruct
     public void init() {
-        idClienteField = new TextField("ID del Cliente");
+        idClienteField = new TextField("Numero Documento del Cliente");
         
         buscarButton = new Button("Buscar Ventas Fiadas", e -> {
             Notification.show("Botón presionado! 🔍"); // 🔥 Confirma que el botón funciona

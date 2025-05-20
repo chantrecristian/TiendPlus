@@ -12,7 +12,7 @@ public class Cliente {
     private String nombre;
 
     @Column(name = "n_documento") // Se asegura de que este campo se mapee correctamente con la BD
-    private String identificacion;
+    private String nDocumento;
 
     public Cliente() {}
 
@@ -31,10 +31,10 @@ public class Cliente {
     }
 
     public String getIdentificacion() { 
-        return identificacion;
+        return nDocumento;
     }
 
     public void setIdentificacion(String identificacion) { 
-        this.identificacion = identificacion;
+        this.nDocumento = identificacion;
     }
 }

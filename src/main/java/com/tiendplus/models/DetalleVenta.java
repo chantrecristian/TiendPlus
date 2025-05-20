@@ -30,7 +30,6 @@ public class DetalleVenta {
     private double precioUnitario;
 
     /** Subtotal calculado automáticamente basado en cantidad y precio unitario */
-    private double subtotal;
 
     public DetalleVenta() {}
 

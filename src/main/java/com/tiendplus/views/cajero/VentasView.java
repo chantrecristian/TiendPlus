@@ -21,7 +21,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 @Route(value = "ventas", layout = MainView.class)
 public class VentasView extends VerticalLayout {
@@ -50,7 +52,11 @@ public class VentasView extends VerticalLayout {
         grid.removeAllColumns();
         grid.addColumn(Venta::getFechaVenta).setHeader("Fecha");
         grid.addColumn(Venta::getMetodoPago).setHeader("Método de Pago");
-        grid.addColumn(Venta::getTotal).setHeader("Total");
+        // grid.addColumn(Venta::getTotal).setHeader("Total");
+        grid.addColumn(producto -> {
+            NumberFormat formato = NumberFormat.getNumberInstance(new Locale("es", "CO"));
+            return formato.format(producto.getTotal());
+        }).setHeader("Total");
         grid.addColumn(venta -> venta.getCajero() != null ? venta.getCajero().getNombre() : "N/A")
                 .setHeader("Cajero");
 

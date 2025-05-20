@@ -34,6 +34,9 @@ public class MenuAdminView extends VerticalLayout {
 
         // Layout horizontal para alinear las tarjetas de acceso a las secciones
         HorizontalLayout accesos = new HorizontalLayout();
+        accesos.getStyle()
+        .set("flex-wrap", "wrap")
+        .set("justify-content", "center");
         accesos.setSpacing(true); // Espaciado entre los elementos
         accesos.setPadding(true); // Padding para los elementos dentro del layout
 
