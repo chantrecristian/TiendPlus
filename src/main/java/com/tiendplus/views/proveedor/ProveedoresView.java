@@ -102,9 +102,9 @@ public class ProveedoresView extends VerticalLayout {
         // Configurar grid de productos
         productosGrid.setItems(productos);
         productosGrid.removeAllColumns(); // Limpia columnas previas (si las hay)
-        productosGrid.addColumn(Producto::getNombre).setHeader("Nombre");
-        productosGrid.addColumn(Producto::getDescripcion).setHeader("Descripción");
-        productosGrid.addColumn(Producto::getCantidad).setHeader("Cantidad");
+        productosGrid.addColumn(producto -> producto.getNombre()).setHeader("Nombre");
+        productosGrid.addColumn(producto -> producto.getDescripcion()).setHeader("Descripción");
+        productosGrid.addColumn(producto -> producto.getCantidad()).setHeader("Cantidad");
         productosGrid.addColumn(producto -> {
             NumberFormat formato = NumberFormat.getNumberInstance(new Locale("es", "CO"));
             return formato.format(producto.getPrecio());

@@ -6,30 +6,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.ManyToOne;
-<<<<<<< HEAD
-
-@Entity
-@Table(name = "inventario")
-public class Producto {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    private String nombre;
-
-    private String descripcion;
-
-    private double precio;
-
-    private Integer cantidad;
-
-    @ManyToOne
-    private Proveedor proveedor;
-
-    public Producto() {}
-
-=======
 // Indica que esta clase es una entidad JPA, es decir, se mapeará a una tabla en la base de datos
 @Entity
 
@@ -61,7 +37,6 @@ public class Producto {
     public Producto() {}
 
     // Constructor con parametros
->>>>>>> b00e0011af1d2b76535b6abae1a91dbdc0bd4528
     public Producto(Long id, String nombre, String descripcion, Integer precio, Integer cantidad, Proveedor proveedor) {
         this.id = id;
         this.nombre = nombre;
@@ -71,11 +46,8 @@ public class Producto {
         this.proveedor = proveedor;
     }
 
-<<<<<<< HEAD
-=======
     // Getters y Setters
 
->>>>>>> b00e0011af1d2b76535b6abae1a91dbdc0bd4528
     public Long getId() {
         return id;
     }
