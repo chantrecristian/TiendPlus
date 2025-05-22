@@ -266,7 +266,7 @@ public class RegistrarVentaView extends VerticalLayout {
             return;
         }
 
-        Cliente cliente = clienteRepo.findByIdentificacion(idCliente);
+        Cliente cliente = clienteRepo.findByNDocumento(idCliente);
 
         if (cliente == null) {
             cliente = new Cliente();

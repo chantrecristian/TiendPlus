@@ -1,15 +1,12 @@
 package com.tiendplus.models;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-import java.math.BigDecimal;
 
 /**
  * Clase que representa el detalle de una venta en Tiend Plus.
  * Contiene la cantidad vendida de un producto, su precio unitario y el subtotal.
  */
 @Entity
-@Table(name = "detalle_venta")
 public class DetalleVenta {
 
     @Id
@@ -18,42 +15,23 @@ public class DetalleVenta {
 
     /** Relación con la venta a la que pertenece este detalle */
     @ManyToOne
-    @JoinColumn(name = "venta_id", nullable = false)
+    @JoinColumn(name = "venta_id")
     private Venta venta;
 
     /** Relación con el producto que se está vendiendo */
     @ManyToOne
-    @JoinColumn(name = "producto_id", nullable = false)
+    @JoinColumn(name = "producto_id")
     private Producto producto;
 
     /** Cantidad de productos vendidos en esta transacción */
-    @Min(value = 1, message = "La cantidad debe ser al menos 1")
     private int cantidad;
 
     /** Precio unitario del producto en el momento de la venta */
-    @NotNull(message = "El precio unitario no puede ser nulo")
-    @PositiveOrZero(message = "El precio unitario no puede ser negativo")
-    @Column(name = "precio_unitario", precision = 10, scale = 2)
-    private BigDecimal precioUnitario;
+    private double precioUnitario;
 
-    /** Subtotal calculado automáticamente basado en cantidad y precio unitario */
-    @Transient
-    public BigDecimal getSubtotal() {
-        return precioUnitario.multiply(BigDecimal.valueOf(cantidad));
-    }
-
-    // Constructor vacío (requerido por JPA)
     public DetalleVenta() {}
 
-    // Constructor útil para construir desde servicios
-    public DetalleVenta(Venta venta, Producto producto, int cantidad, BigDecimal precioUnitario) {
-        this.venta = venta;
-        this.producto = producto;
-        this.cantidad = cantidad;
-        this.precioUnitario = precioUnitario;
-    }
-
-    // Getters y Setters
+    // Getters y setters
 
     public Long getId() {
         return id;
@@ -83,11 +61,20 @@ public class DetalleVenta {
         this.cantidad = cantidad;
     }
 
-    public BigDecimal getPrecioUnitario() {
+    public double getPrecioUnitario() {
         return precioUnitario;
     }
 
-    public void setPrecioUnitario(BigDecimal precioUnitario) {
+    public void setPrecioUnitario(double precioUnitario) {
         this.precioUnitario = precioUnitario;
+    }
+
+    /**
+     * Calcula el subtotal dinámicamente sin necesidad de actualizarlo manualmente.
+     * Evita errores al no depender de una actualización manual en el código.
+     * @return subtotal de la venta basado en cantidad y precio unitario.
+     */
+    public double getSubtotal() {
+        return cantidad * precioUnitario;
     }
 }

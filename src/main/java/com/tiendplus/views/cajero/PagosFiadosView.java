@@ -14,7 +14,6 @@ import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import jakarta.annotation.PostConstruct;
-import java.math.BigDecimal;
 import java.util.List;
 
 @Route("pagos-fiados")  // Define la vista en la aplicación
@@ -26,7 +25,7 @@ public class PagosFiadosView extends VerticalLayout {
     @Autowired
     private ClienteRepository clienteRepository;
 
-    private TextField idClienteField;  // Campo para ID de cliente
+    private TextField documentoClienteField;  // Campo para número de documento del cliente
     private Button buscarButton;  // Botón para buscar ventas fiadas
     private Grid<Venta> ventasGrid;  // Tabla de ventas fiadas
     private Button pagarEfectivoBtn;  // Botón para pagar en efectivo
@@ -38,59 +37,54 @@ public class PagosFiadosView extends VerticalLayout {
 
     @PostConstruct
     public void init() {
-        idClienteField = new TextField("ID del Cliente");
-
+        documentoClienteField = new TextField("Número de Documento del Cliente"); // 🔄 Cambiado de ID a documento
         buscarButton = new Button("Buscar Ventas Fiadas", e -> {
-            Notification.show("🔍 Buscando ventas fiadas...");
+            Notification.show("Botón presionado! 🔍");
             buscarVentasFiadas();
         });
 
         ventasGrid = new Grid<>(Venta.class);
-        ventasGrid.setColumns("idVenta", "fechaVenta", "total", "metodoPago");
+        ventasGrid.setColumns("id", "fechaVenta", "total", "metodoPago");
         ventasGrid.asSingleSelect().addValueChangeListener(e -> ventaSeleccionada = e.getValue());
 
-        pagarEfectivoBtn = new Button("Pagar en Efectivo", e -> pagarVenta("Efectivo"));
-        pagarTarjetaBtn = new Button("Pagar con Tarjeta", e -> pagarVenta("Tarjeta"));
-        pagarDigitalBtn = new Button("Pagar Digital", e -> pagarVenta("Digital"));
+        pagarEfectivoBtn = new Button("Pagar en Efectivo", e -> pagarVenta("EFECTIVO"));
+        pagarTarjetaBtn = new Button("Pagar con Tarjeta", e -> pagarVenta("TARJETA"));
+        pagarDigitalBtn = new Button("Pagar Digital", e -> pagarVenta("DIGITAL"));
         abonoField = new NumberField("Monto a Abonar");
         abonarButton = new Button("Abonar", e -> abonarAFiado());
 
-        add(idClienteField, buscarButton, ventasGrid, abonoField, abonarButton, pagarEfectivoBtn, pagarTarjetaBtn, pagarDigitalBtn);
+        add(documentoClienteField, buscarButton, ventasGrid, abonoField, abonarButton, pagarEfectivoBtn, pagarTarjetaBtn, pagarDigitalBtn);
     }
 
+    /** 🔥 Método para buscar las ventas fiadas de un cliente por número de documento */
     private void buscarVentasFiadas() {
-        String idClienteStr = idClienteField.getValue();
-        if (idClienteStr == null || idClienteStr.isEmpty()) {
-            Notification.show("❌ Por favor ingrese el ID del cliente");
+        Notification.show("Buscando ventas fiadas... 🔍");
+
+        String documentoClienteStr = documentoClienteField.getValue();  // 🔄 Ahora se usa el número de documento
+        System.out.println("Documento ingresado: " + documentoClienteStr);
+
+        if (documentoClienteStr == null || documentoClienteStr.isEmpty()) {
+            Notification.show("❌ Por favor ingrese el número de documento del cliente");
             return;
         }
 
-        try {
-            Long idCliente = Long.parseLong(idClienteStr);
-            Cliente cliente = clienteRepository.findById(idCliente).orElse(null);
-            if (cliente == null) {
-                Notification.show("❌ Cliente no encontrado");
-                return;
-            }
+        Cliente cliente = clienteRepository.findByNDocumento(documentoClienteStr); // 🔥 Busca por 'n_documento'
 
-            // 🔍 Verificación en consola antes de la consulta
-            System.out.println("Ejecutando consulta de ventas fiadas...");
-            System.out.println("Cliente ID: " + cliente.getId());
+        System.out.println("Cliente encontrado: " + cliente);
 
-            List<Venta> ventasFiadas = ventaRepository.findByClienteAndMetodoPago(cliente.getId(), "Fiado");
-
-            // 🔍 Confirmación en consola
-            System.out.println("Ventas fiadas encontradas: " + ventasFiadas.size());
-
-            ventasGrid.setItems(ventasFiadas);
-            ventasGrid.getDataProvider().refreshAll();
-
-            Notification.show("✅ Ventas fiadas cargadas correctamente!");
-        } catch (NumberFormatException ex) {
-            Notification.show("❌ ID inválido");
+        if (cliente == null) {
+            Notification.show("❌ Cliente no encontrado");
+            return;
         }
+
+        List<Venta> ventasFiadas = ventaRepository.findByClienteAndMetodoPago(cliente, "Fiado");
+        System.out.println("Ventas fiadas encontradas: " + ventasFiadas);
+        ventasGrid.setItems(ventasFiadas);
+
+        Notification.show("✅ Ventas fiadas cargadas correctamente!");
     }
 
+    /** 🔥 Método para pagar una venta fiada con el método de pago seleccionado */
     private void pagarVenta(String metodo) {
         if (ventaSeleccionada == null) {
             Notification.show("❌ Seleccione una venta");
@@ -104,6 +98,7 @@ public class PagosFiadosView extends VerticalLayout {
         buscarVentasFiadas(); // 🔄 Refrescar tabla de ventas fiadas
     }
 
+    /** 🔥 Método para abonar a una venta fiada */
     private void abonarAFiado() {
         if (ventaSeleccionada == null) {
             Notification.show("❌ Seleccione una venta");
@@ -116,11 +111,11 @@ public class PagosFiadosView extends VerticalLayout {
             return;
         }
 
-        BigDecimal nuevoTotal = ventaSeleccionada.getTotal().subtract(BigDecimal.valueOf(abono));
+        Double nuevoTotal = ventaSeleccionada.getTotal() - abono;
 
-        if (nuevoTotal.compareTo(BigDecimal.ZERO) <= 0) {
+        if (nuevoTotal <= 0) {
             ventaSeleccionada.setMetodoPago("Efectivo");
-            ventaSeleccionada.setTotal(BigDecimal.ZERO);
+            ventaSeleccionada.setTotal(0.0);
             Notification.show("✅ Abono cubre toda la deuda, venta marcada como pagada");
         } else {
             ventaSeleccionada.setTotal(nuevoTotal);
@@ -128,6 +123,6 @@ public class PagosFiadosView extends VerticalLayout {
         }
 
         ventaRepository.save(ventaSeleccionada);
-        buscarVentasFiadas();
+        buscarVentasFiadas(); // 🔄 Refrescar tabla de ventas fiadas
     }
 }
