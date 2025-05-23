@@ -1,5 +1,8 @@
 package com.tiendplus.views.proveedor.grids;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.List;
 
 import com.tiendplus.models.Producto;
@@ -19,7 +22,14 @@ public class ProductoGrid extends VerticalLayout {
         grid.addColumn(Producto::getId).setHeader("ID");
         grid.addColumn(Producto::getNombre).setHeader("Nombre");
         grid.addColumn(Producto::getDescripcion).setHeader("Descripción");
-        grid.addColumn(Producto::getPrecio).setHeader("Precio");
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator('.');
+        symbols.setDecimalSeparator(',');
+
+        DecimalFormat formato = new DecimalFormat("#,##0", symbols); // sin decimales
+
+        grid.addColumn(producto -> formato.format(producto.getPrecio()))
+        .setHeader("Precio");
         grid.addColumn(Producto::getCantidad).setHeader("Cantidad");
 
         // Columna para el nombre del proveedor asociado

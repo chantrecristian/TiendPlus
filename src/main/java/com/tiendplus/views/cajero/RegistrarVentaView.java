@@ -78,8 +78,14 @@ public class RegistrarVentaView extends VerticalLayout {
         // Listener para buscar el producto cuando se cambia el código
         codigoProducto.addValueChangeListener(event -> buscarProducto());
 
+        // 🔄 Listener para recalcular el subtotal automáticamente
+        cantidadField.addValueChangeListener(event -> calcularSubtotal());
+        precioUnitario.addValueChangeListener(event -> calcularSubtotal());
+
         // Layout para los campos de entrada
-        HorizontalLayout inputs = new HorizontalLayout(codigoProducto, nombreProducto, precioUnitario, cantidadField, subtotalField, agregarBtn);
+        HorizontalLayout inputs = new HorizontalLayout(
+            codigoProducto, nombreProducto, precioUnitario, cantidadField, subtotalField, agregarBtn
+        );
         
         // Configuración de las columnas del grid
         grid.setColumns("producto.nombre", "cantidad", "precioUnitario", "subtotal");
@@ -196,21 +202,38 @@ public class RegistrarVentaView extends VerticalLayout {
 
     // Método para registrar el pago de la venta con un determinado método
     // 🔥 Método para registrar el pago de la venta con un mensaje de confirmación
-    private void pagarVenta(String metodo) {
-        Venta venta = new Venta();
-        venta.setFechaVenta(LocalDate.now());
-        venta.setTotal(totalVenta);
-        venta.setMetodoPago(metodo);
+    private boolean pagarVenta(String metodo) {
+        try {
+            Venta venta = new Venta();
+            venta.setFechaVenta(LocalDate.now());
+            venta.setTotal(totalVenta);
+            venta.setMetodoPago(metodo);
 
-        ventaRepo.save(venta);
-        detalles.forEach(d -> {
-            d.setVenta(venta);
-            detalleRepo.save(d);
-        });
+            ventaRepo.save(venta);
+            detalles.forEach(d -> {
+                d.setVenta(venta);
+                d.setSubtotal(d.getCantidad() * d.getPrecioUnitario()); 
+                detalleRepo.save(d);
+            });
 
-        Notification.show("Venta registrada con éxito. Pago realizado con método: " + metodo);
-        cancelarVenta();
+            Notification notification = Notification.show(
+                "Venta registrada con éxito. Pago realizado con método: " + metodo
+            );
+            notification.setDuration(3000);  // Milisegundos
+            notification.setPosition(Notification.Position.MIDDLE);
+
+            cancelarVenta();
+            return true;
+
+        } catch (Exception e) {
+            e.printStackTrace();  // Ver el error en consola
+            Notification notification = Notification.show("Error al registrar la venta: " + e.getMessage());
+            notification.setDuration(3000);
+            notification.setPosition(Notification.Position.MIDDLE);
+            return false;
+        }
     }
+
     // 📌 Método para registrar la venta fiada asociada a un cliente
     private Venta venta; // 👈 Declaramos la variable como un atributo de la clase
 
@@ -228,7 +251,6 @@ public class RegistrarVentaView extends VerticalLayout {
         venta.setFechaVenta(LocalDate.now());
         venta.setTotal(totalVenta);
         venta.setMetodoPago("FIADO");
-        venta.setCliente(cliente);
     
         venta = ventaRepo.save(venta); // 💾 Guardamos la venta y aseguramos que reciba su ID
     
@@ -257,7 +279,6 @@ public class RegistrarVentaView extends VerticalLayout {
     TextField nombreClienteField = new TextField("Nombre Cliente");
 
     Button confirmarBtn = new Button("Confirmar", event -> {
-        Notification.show("Botón Confirmar presionado");
         String idCliente = idClienteField.getValue();
         String nombreCliente = nombreClienteField.getValue();
 
@@ -278,15 +299,10 @@ public class RegistrarVentaView extends VerticalLayout {
             Notification.show("Cliente encontrado: " + cliente.getNombre());
         }
 
-         // 💾 Registrar la venta fiada
-            registrarVentaFiada(cliente);
-
-         // 🔄 Cerrar la ventana emergente
-            dialog.close();
-
-        // 🔥 Cierra el diálogo inmediatamente después de mostrar los mensajes
-        getUI().ifPresent(ui -> ui.access(dialog::close));
+        registrarVentaFiada(cliente);
+        dialog.close();  // ✅ Cierra correctamente aquí, después de todo el proceso
     });
+
 
     dialog.add(new VerticalLayout(idClienteField, nombreClienteField, confirmarBtn));
     dialog.open();
@@ -298,21 +314,26 @@ private void pagarVentaFiada() {
 }
     // Método para cancelar la venta y limpiar la vista
     private void cancelarVenta() {
-        detalles.clear();  // Limpiar los detalles de la venta
-        grid.setItems(detalles);  // Actualizar el grid
-        totalVenta = 0;  // Reiniciar el total de la venta
-        totalVentaLabel.setText("Total: $0");  // Reiniciar el total en la interfaz
-        pagarBtn.setEnabled(false);  // Deshabilitar los botones de pago
-        limpiarCamposProducto();  // Limpiar los campos de producto
+        detalles.clear();
+        grid.setItems(detalles);
+        totalVenta = 0;
+        totalVentaLabel.setText("Total: $0");
+
+        limpiarCamposProducto();
+        
+        pagarBtn.setEnabled(false);
+        pagarFiadoBtn.setEnabled(false);
     }
+
        
 
     // Método para limpiar los campos de producto
     private void limpiarCamposProducto() {
-        codigoProducto.clear();  // Limpiar el campo de ID del producto
-        nombreProducto.clear();  // Limpiar el campo de nombre del producto
-        precioUnitario.clear();  // Limpiar el campo de precio
-        cantidadField.clear();   // Limpiar el campo de cantidad
-        subtotalField.clear();   // Limpiar el campo de subtotal
+        codigoProducto.clear();
+        nombreProducto.clear();
+        precioUnitario.clear();
+        cantidadField.setValue(1d);
+        subtotalField.clear();
     }
+
 }
