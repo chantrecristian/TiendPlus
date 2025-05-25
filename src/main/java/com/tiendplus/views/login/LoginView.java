@@ -61,29 +61,45 @@ public class LoginView extends VerticalLayout {
         loginButton.addClickListener(e -> {
             String nombre = nombreField.getValue();
             String contraseña = contraseñaField.getValue();
-            Usuario usuario = usuarioService.validarLogin(nombre, contraseña);
 
-            if (usuario != null) {
-                mensajeError.setVisible(false);
-                String rol = usuario.getRol().toLowerCase();
+            try {
+                Usuario usuario = usuarioService.validarLogin(nombre, contraseña);
 
-                switch (rol) {
-                    case "administrador":
-                        UI.getCurrent().navigate("menu-admin");
-                        break;
-                    case "cajero":
-                        UI.getCurrent().navigate("registrar-venta");
-                        break;
-                    case "proveedor":
-                        UI.getCurrent().navigate("proveedor/productos");
-                        break;
-                    default:
-                        mensajeError.setText("Rol no reconocido: " + rol);
-                        mensajeError.setVisible(true);
+                if (usuario != null) {
+                    mensajeError.setVisible(false);
+                    String rol = usuario.getRol().toLowerCase();
+
+                    UI.getCurrent().getPage().executeJs("console.log('✅ Usuario autenticado correctamente: " + nombre + "')");
+
+                    switch (rol) {
+                        case "administrador":
+                            UI.getCurrent().getPage().executeJs("console.log('👤 Rol administrador detectado. Redirigiendo al menú.')");
+                            UI.getCurrent().navigate("menu-admin");
+                            break;
+                        case "cajero":
+                            UI.getCurrent().getPage().executeJs("console.log('👤 Rol cajero detectado. Redirigiendo a ventas.')");
+                            UI.getCurrent().navigate("registrar-venta");
+                            break;
+                        case "proveedor":
+                            UI.getCurrent().getPage().executeJs("console.log('👤 Rol proveedor detectado. Redirigiendo a productos.')");
+                            UI.getCurrent().navigate("proveedor/productos");
+                            break;
+                        default:
+                            mensajeError.setText("Rol no reconocido: " + rol);
+                            mensajeError.setVisible(true);
+                            UI.getCurrent().getPage().executeJs("console.error('❌ Rol no reconocido: " + rol + "')");
+                    }
+
+                } else {
+                    mensajeError.setText("Credenciales incorrectas");
+                    mensajeError.setVisible(true);
+                    UI.getCurrent().getPage().executeJs("console.error('❌ Fallo en login: credenciales incorrectas para el usuario " + nombre + "')");
                 }
-            } else {
-                mensajeError.setText("Credenciales incorrectas");
+
+            } catch (Exception ex) {
+                mensajeError.setText("Error inesperado en el sistema");
                 mensajeError.setVisible(true);
+                UI.getCurrent().getPage().executeJs("console.error('🔥 Error inesperado al intentar iniciar sesión: ' + $0)", ex.getMessage());
             }
         });
 

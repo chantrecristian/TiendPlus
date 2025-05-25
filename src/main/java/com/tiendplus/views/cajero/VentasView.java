@@ -39,7 +39,10 @@ public class VentasView extends VerticalLayout {
 
         // Botón para volver al menú principal
         Button volverBtn = new Button("Volver al Menú");
-        volverBtn.addClickListener(e -> volverBtn.getUI().ifPresent(ui -> ui.navigate("menu-admin")));
+        volverBtn.addClickListener(e -> volverBtn.getUI().ifPresent(ui -> {
+            ui.navigate("menu-admin");
+            ui.getPage().executeJs("console.log('Navegando al menú principal');");
+        }));
 
         HorizontalLayout topBar = new HorizontalLayout(volverBtn);
         topBar.setWidthFull();
@@ -52,7 +55,6 @@ public class VentasView extends VerticalLayout {
         grid.removeAllColumns();
         grid.addColumn(Venta::getFechaVenta).setHeader("Fecha");
         grid.addColumn(Venta::getMetodoPago).setHeader("Método de Pago");
-        // grid.addColumn(Venta::getTotal).setHeader("Total");
         grid.addColumn(producto -> {
             NumberFormat formato = NumberFormat.getNumberInstance(new Locale("es", "CO"));
             return formato.format(producto.getTotal());
@@ -109,11 +111,15 @@ public class VentasView extends VerticalLayout {
             downloadLink.getElement().executeJs("this.click()");
             add(downloadLink);
 
+            // Mostrar notificación y mensaje en consola
             Notification.show("Exportación a Excel exitosa", 3000, Notification.Position.BOTTOM_START)
                     .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            getUI().ifPresent(ui -> ui.getPage().executeJs("console.log('Exportación a Excel exitosa')"));
+
         } catch (IOException e) {
             Notification.show("Error al exportar a Excel", 3000, Notification.Position.BOTTOM_START)
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            getUI().ifPresent(ui -> ui.getPage().executeJs("console.error('Error al exportar a Excel: ' + $0)", e.getMessage()));
         }
     }
 }

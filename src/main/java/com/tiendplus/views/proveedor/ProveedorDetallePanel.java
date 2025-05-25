@@ -8,6 +8,7 @@ import com.tiendplus.repositories.ProductoRepository;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 public class ProveedorDetallePanel extends VerticalLayout {
@@ -18,7 +19,7 @@ public class ProveedorDetallePanel extends VerticalLayout {
     private final Paragraph empresa = new Paragraph();
     private final Grid<Producto> productosGrid = new Grid<>(Producto.class);
 
-        public ProveedorDetallePanel(ProductoRepository productoRepository) {
+    public ProveedorDetallePanel(ProductoRepository productoRepository) {
         this.productoRepository = productoRepository;
 
         add(new H3("Información del proveedor"));
@@ -28,7 +29,7 @@ public class ProveedorDetallePanel extends VerticalLayout {
         productosGrid.setSizeFull();
         add(new H3("Productos asociados"), productosGrid);
         setVisible(false);
-        setWidth("500px"); // Puedes ajustar el tamaño según tu diseño
+        setWidth("500px"); // Ajusta según diseño
     }
 
     public void mostrarDetalles(Proveedor proveedor) {
@@ -42,8 +43,12 @@ public class ProveedorDetallePanel extends VerticalLayout {
             productosGrid.setItems(productos);
 
             setVisible(true);
+            Notification.show("Detalles cargados para proveedor: " + proveedor.getNombre());
+            getElement().executeJs("console.log('Mostrando detalles del proveedor: ' + $0)", proveedor.getNombre());
         } else {
             setVisible(false);
+            Notification.show("No hay proveedor seleccionado", 2000, Notification.Position.MIDDLE);
+            getElement().executeJs("console.log('Ocultando detalles de proveedor')");
         }
     }
 }
