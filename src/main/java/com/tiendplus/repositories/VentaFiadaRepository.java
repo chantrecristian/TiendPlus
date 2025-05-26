@@ -12,7 +12,7 @@ public interface VentaFiadaRepository extends JpaRepository<VentaFiada, Integer>
     List<VentaFiada> findAll();
 
     // Método para buscar ventas fiadas por ID de cliente
-    List<VentaFiada> findByIdCliente(Integer idCliente);
+    List<VentaFiada> findByIdCliente(Long idCliente);
     
     // Método para buscar ventas fiadas de un cliente ordenadas por fecha
     List<VentaFiada> findByIdClienteOrderByFechaVentaDesc(Integer idCliente);

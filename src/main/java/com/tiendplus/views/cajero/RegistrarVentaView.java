@@ -4,9 +4,11 @@ import com.tiendplus.models.Cliente;
 import com.tiendplus.models.DetalleVenta;
 import com.tiendplus.models.Producto;
 import com.tiendplus.models.Venta;
+import com.tiendplus.models.VentaFiada;
 import com.tiendplus.repositories.ClienteRepository;
 import com.tiendplus.repositories.DetalleVentaRepository;
 import com.tiendplus.repositories.ProductoRepository;
+import com.tiendplus.repositories.VentaFiadaRepository;
 import com.tiendplus.repositories.VentaRepository;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -35,6 +37,7 @@ public class RegistrarVentaView extends VerticalLayout {
     private final VentaRepository ventaRepo;
     private final DetalleVentaRepository detalleRepo;
     private final ClienteRepository clienteRepo;
+    private final VentaFiadaRepository ventaFiadaRepo;
 
     private final Grid<DetalleVenta> grid = new Grid<>(DetalleVenta.class);
     private final List<DetalleVenta> detalles = new ArrayList<>();
@@ -58,11 +61,12 @@ public class RegistrarVentaView extends VerticalLayout {
     @Autowired
     
 public RegistrarVentaView(ProductoRepository productoRepo, VentaRepository ventaRepo,
-                          DetalleVentaRepository detalleRepo, ClienteRepository clienteRepo) {
+ DetalleVentaRepository detalleRepo, ClienteRepository clienteRepo, VentaFiadaRepository ventaFiadaRepo) {
     this.productoRepo = productoRepo;
     this.ventaRepo = ventaRepo;
     this.detalleRepo = detalleRepo;
     this.clienteRepo = clienteRepo;
+    this.ventaFiadaRepo = ventaFiadaRepo;
 
     add(new H1("Registrar Venta"));
 
@@ -152,7 +156,7 @@ private void agregarProducto() {
 }
 
 
-    // Método para mostrar las opciones de pago (efectivo, tarjeta, digital o fiado)
+    // Método para mostrar las opciones de pago (efectivo o fiado)
 private void mostrarOpcionesPago() {
     Dialog dialog = new Dialog();
     dialog.setWidth("400px");
@@ -216,35 +220,44 @@ private void mostrarOpcionesPago() {
 
     private Venta venta;
 
-    private void registrarVentaFiada(Cliente cliente) {
-        if (cliente == null) {
-            Notification.show("Error: Cliente no válido.");
-            getElement().executeJs("console.log('❌ Cliente no válido en venta fiada')");
-            return;
-        }
-
-        Notification.show("Registrando venta fiada para el cliente: " + cliente.getNombre());
-        getElement().executeJs("console.log('📦 Registrando venta fiada para cliente: " + cliente.getNombre() + "')");
-
-        double totalVenta = detalles.stream().mapToDouble(DetalleVenta::getSubtotal).sum();
-
-        venta = new Venta();
-        venta.setFechaVenta(LocalDate.now());
-        venta.setTotal(totalVenta);
-        venta.setMetodoPago("FIADO");
-
-        venta = ventaRepo.save(venta);
-
-        detalles.forEach(d -> {
-            d.setVenta(venta);
-            detalleRepo.save(d);
-        });
-
-        Notification.show("Venta fiada registrada con éxito. Total: $" + totalVenta);
-        getElement().executeJs("console.log('✅ Venta fiada registrada con éxito. Total: $" + totalVenta + "')");
-
-        cancelarVenta();
+private void registrarVentaFiada(Cliente cliente) {
+    if (cliente == null) {
+        Notification.show("Error: Cliente no válido.");
+        getElement().executeJs("console.log('❌ Cliente no válido en venta fiada')");
+        return;
     }
+
+    Notification.show("Registrando venta fiada para el cliente: " + cliente.getNombre());
+    getElement().executeJs("console.log('📦 Registrando venta fiada para cliente: " + cliente.getNombre() + "')");
+
+    double totalVenta = detalles.stream().mapToDouble(DetalleVenta::getSubtotal).sum();
+
+    venta = new Venta();
+    venta.setFechaVenta(LocalDate.now());
+    venta.setTotal(totalVenta);
+    venta.setMetodoPago("FIADO");
+    venta.setCliente(cliente); // si tienes relación directa en tu entidad Venta
+
+    venta = ventaRepo.save(venta);
+
+    for (DetalleVenta d : detalles) {
+        d.setVenta(venta);
+        detalleRepo.save(d);
+    }
+
+    // REGISTRAR EN TABLA VENTA_FIADA
+    VentaFiada ventaFiada = new VentaFiada();
+    ventaFiada.setFechaVenta(LocalDate.now());
+    ventaFiada.setIdCliente(cliente.getId());
+    ventaFiada.setMontoFiado(totalVenta);
+
+    ventaFiadaRepo.save(ventaFiada);
+
+    Notification.show("Venta fiada registrada con éxito. Total: $" + totalVenta);
+    getElement().executeJs("console.log('✅ Venta fiada y detalles guardados')");
+
+    cancelarVenta();
+}
 
     private void pedirIdClienteParaFiado() {
         Dialog dialog = new Dialog();

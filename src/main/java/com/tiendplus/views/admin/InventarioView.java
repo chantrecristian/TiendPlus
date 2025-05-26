@@ -2,9 +2,7 @@ package com.tiendplus.views.admin;
 
 import com.tiendplus.models.Producto;
 import com.tiendplus.repositories.ProductoRepository;
-import com.tiendplus.repositories.ProveedorRepository;
 import com.tiendplus.alertas.LoggerUI;
-import com.tiendplus.views.proveedor.ProductoForm;
 import com.tiendplus.views.proveedor.grids.ProductoGrid;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;

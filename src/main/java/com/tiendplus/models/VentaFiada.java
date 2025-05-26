@@ -4,56 +4,62 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "ventas_fiadas")  // Se enlaza con la tabla en la BD
+@Table(name = "ventas_fiadas")
 public class VentaFiada {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idFiado;  // ID de la venta fiada
+    private Integer idFiado;
 
-    @Column(name = "id_cliente")
-    private Integer idCliente;
+    @Column(name = "id_cliente", nullable = false)
+    private Long idCliente;  // Tipo Long para coincidir con Cliente.id
 
-    @Column(name = "nombre_cliente")
-    private String nombreCliente;
-
-    @Column(name = "n_documento")
-    private String nDocumento;
-
-    @Column(name = "monto_fiado")
+    @Column(name = "monto_fiado", nullable = false)
     private Double montoFiado;
 
-    @Column(name = "fecha_venta")
+    @Column(name = "fecha_venta", nullable = false)
     private LocalDate fechaVenta;
 
     // Constructor vacío
     public VentaFiada() {}
 
-    // Constructor con todos los atributos
-    public VentaFiada(Integer idCliente, String nombreCliente, String nDocumento, Double montoFiado, LocalDate fechaVenta) {
+    // Constructor con argumentos
+    public VentaFiada(Long idCliente, Double montoFiado, LocalDate fechaVenta) {
         this.idCliente = idCliente;
-        this.nombreCliente = nombreCliente;
-        this.nDocumento = nDocumento;
         this.montoFiado = montoFiado;
         this.fechaVenta = fechaVenta;
     }
 
     // Getters y Setters
-    public Integer getIdFiado() { return idFiado; }
-    public void setIdFiado(Integer idFiado) { this.idFiado = idFiado; }
+    public Integer getIdFiado() {
+        return idFiado;
+    }
 
-    public Integer getIdCliente() { return idCliente; }
-    public void setIdCliente(Integer idCliente) { this.idCliente = idCliente; }
+    public void setIdFiado(Integer idFiado) {
+        this.idFiado = idFiado;
+    }
 
-    public String getNombreCliente() { return nombreCliente; }
-    public void setNombreCliente(String nombreCliente) { this.nombreCliente = nombreCliente; }
+    public Long getIdCliente() {
+        return idCliente;
+    }
 
-    public String getNDocumento() { return nDocumento; }
-    public void setNDocumento(String nDocumento) { this.nDocumento = nDocumento; }
+    public void setIdCliente(Long idCliente) {
+        this.idCliente = idCliente;
+    }
 
-    public Double getMontoFiado() { return montoFiado; }
-    public void setMontoFiado(Double montoFiado) { this.montoFiado = montoFiado; }
+    public Double getMontoFiado() {
+        return montoFiado;
+    }
 
-    public LocalDate getFechaVenta() { return fechaVenta; }
-    public void setFechaVenta(LocalDate fechaVenta) { this.fechaVenta = fechaVenta; }
+    public void setMontoFiado(Double montoFiado) {
+        this.montoFiado = montoFiado;
+    }
+
+    public LocalDate getFechaVenta() {
+        return fechaVenta;
+    }
+
+    public void setFechaVenta(LocalDate fechaVenta) {
+        this.fechaVenta = fechaVenta;
+    }
 }

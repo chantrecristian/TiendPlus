@@ -11,12 +11,10 @@ public class Cliente {
 
     private String nombre;
 
-    @Column(name = "n_documento") // Se asegura de que este campo se mapee correctamente con la BD
+    @Column(name = "n_documento")
     private String nDocumento;
 
     public Cliente() {}
-
-    // Getters y setters
 
     public Long getId() {
         return id;
@@ -30,11 +28,11 @@ public class Cliente {
         this.nombre = nombre;
     }
 
-    public String getIdentificacion() { 
+    public String getIdentificacion() {
         return nDocumento;
     }
 
-    public void setIdentificacion(String identificacion) { 
+    public void setIdentificacion(String identificacion) {
         this.nDocumento = identificacion;
     }
 }
