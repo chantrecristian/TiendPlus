@@ -1,6 +1,7 @@
 package com.tiendplus.views.admin;
 
 // Importación de componentes necesarios para la vista
+import com.tiendplus.alertas.LoggerUI;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -82,7 +83,10 @@ public class MenuAdminView extends VerticalLayout {
         card.add(titleLabel, descLabel);
 
         // Añadir un evento de clic para navegar a la ruta correspondiente cuando se hace clic en la tarjeta
-        card.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate(route)));
+        card.addClickListener(e -> {
+            LoggerUI.logInfo("Navegando a la sección: " + title.replace("📦", "").replace("💵", "").replace("📊", "").trim());
+            getUI().ifPresent(ui -> ui.navigate(route));
+        });
 
         return card; // Devuelve la tarjeta lista
     }

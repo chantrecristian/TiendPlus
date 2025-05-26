@@ -1,6 +1,7 @@
 package com.tiendplus.views.admin;
 
 // Importación de componentes necesarios para la vista
+import com.tiendplus.alertas.LoggerUI;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -20,6 +21,9 @@ public class ReportesView extends VerticalLayout {
 
     // Constructor que se llama cuando se carga la vista
     public ReportesView() {
+        // Mostrar mensaje en consola
+        LoggerUI.logInfo("Vista de reportes cargada correctamente");
+
         // Configuración del layout principal
         setSizeFull(); // Hace que el layout ocupe todo el espacio disponible
         setAlignItems(Alignment.CENTER); // Centra los elementos verticalmente

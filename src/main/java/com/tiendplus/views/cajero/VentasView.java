@@ -39,7 +39,10 @@ public class VentasView extends VerticalLayout {
 
         // Botón para volver al menú principal
         Button volverBtn = new Button("Volver al Menú");
-        volverBtn.addClickListener(e -> volverBtn.getUI().ifPresent(ui -> ui.navigate("menu-admin")));
+        volverBtn.addClickListener(e -> volverBtn.getUI().ifPresent(ui -> {
+            ui.navigate("menu-admin");
+            ui.getPage().executeJs("console.log('Navegando al menú principal');");
+        }));
 
         HorizontalLayout topBar = new HorizontalLayout(volverBtn);
         topBar.setWidthFull();
@@ -48,17 +51,14 @@ public class VentasView extends VerticalLayout {
         // Obtener ventas desde la base de datos
         List<Venta> ventas = ventaRepository.findAll();
 
-        // Configurar columnas personalizadas
+        // Configurar columnas personalizadas (sin la de cajero)
         grid.removeAllColumns();
         grid.addColumn(Venta::getFechaVenta).setHeader("Fecha");
         grid.addColumn(Venta::getMetodoPago).setHeader("Método de Pago");
-        // grid.addColumn(Venta::getTotal).setHeader("Total");
         grid.addColumn(producto -> {
             NumberFormat formato = NumberFormat.getNumberInstance(new Locale("es", "CO"));
             return formato.format(producto.getTotal());
         }).setHeader("Total");
-        grid.addColumn(venta -> venta.getCajero() != null ? venta.getCajero().getNombre() : "N/A")
-                .setHeader("Cajero");
 
         grid.setItems(ventas);
 
@@ -84,7 +84,6 @@ public class VentasView extends VerticalLayout {
         headerRow.createCell(0).setCellValue("Fecha");
         headerRow.createCell(1).setCellValue("Método de Pago");
         headerRow.createCell(2).setCellValue("Total");
-        headerRow.createCell(3).setCellValue("Cajero");
 
         int rowNum = 1;
         for (Venta venta : ventas) {
@@ -92,7 +91,6 @@ public class VentasView extends VerticalLayout {
             row.createCell(0).setCellValue(venta.getFechaVenta().toString());
             row.createCell(1).setCellValue(venta.getMetodoPago());
             row.createCell(2).setCellValue(venta.getTotal());
-            row.createCell(3).setCellValue(venta.getCajero() != null ? venta.getCajero().getNombre() : "N/A");
         }
 
         for (int i = 0; i < 4; i++) {
@@ -104,16 +102,20 @@ public class VentasView extends VerticalLayout {
             byte[] bytes = fileOut.toByteArray();
 
             StreamResource resource = new StreamResource("ventas.xlsx", () -> new ByteArrayInputStream(bytes));
-            Anchor downloadLink = new Anchor(resource, "Descargar Excel");
+            Anchor downloadLink = new Anchor(resource, "");
             downloadLink.getElement().setAttribute("download", true);
             downloadLink.getElement().executeJs("this.click()");
             add(downloadLink);
 
+            // Mostrar notificación y mensaje en consola
             Notification.show("Exportación a Excel exitosa", 3000, Notification.Position.BOTTOM_START)
                     .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            getUI().ifPresent(ui -> ui.getPage().executeJs("console.log('Exportación a Excel exitosa')"));
+
         } catch (IOException e) {
             Notification.show("Error al exportar a Excel", 3000, Notification.Position.BOTTOM_START)
                     .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            getUI().ifPresent(ui -> ui.getPage().executeJs("console.error('Error al exportar a Excel: ' + $0)", e.getMessage()));
         }
     }
 }

@@ -3,6 +3,7 @@ package com.tiendplus.views.admin;
 import com.tiendplus.models.Producto;
 import com.tiendplus.repositories.ProductoRepository;
 import com.tiendplus.repositories.ProveedorRepository;
+import com.tiendplus.alertas.LoggerUI;
 import com.tiendplus.views.proveedor.ProductoForm;
 import com.tiendplus.views.proveedor.grids.ProductoGrid;
 import com.vaadin.flow.component.button.Button;
@@ -19,68 +20,40 @@ import java.util.List;
 public class InventarioView extends VerticalLayout {
 
     private final ProductoRepository productoRepository;
-    private final ProveedorRepository proveedorRepository;
 
     private final ProductoGrid productoGrid = new ProductoGrid();
-    private final ProductoForm productoForm = new ProductoForm();
 
     @Autowired
-    public InventarioView(ProductoRepository productoRepository, ProveedorRepository proveedorRepository) {
+    public InventarioView(ProductoRepository productoRepository) {
         this.productoRepository = productoRepository;
-        this.proveedorRepository = proveedorRepository;
 
         setSizeFull();
         setPadding(true);
         setSpacing(true);
 
-        Button volverBtn = new Button("Volver al Menú", e -> getUI().ifPresent(ui -> ui.navigate("menu-admin")));
-
-        // Botón para crear nuevo producto
-        Button nuevoProducto = new Button("Nuevo Producto", e -> {
-            Producto nuevo = new Producto();
-            productoForm.setProveedores(proveedorRepository.findAll());
-            productoForm.setProducto(nuevo);
-            productoForm.setVisible(true);
+        Button volverBtn = new Button("Volver al Menú", e -> {
+            LoggerUI.logInfo("Navegando al menú de administrador.");
+            getUI().ifPresent(ui -> ui.navigate("menu-admin"));
         });
 
-        // Listeners del formulario
-        productoForm.setOnSave(producto -> {
-            productoRepository.save(producto);
-            actualizarProductos();
-            productoForm.setVisible(false);
-        });
+        // Layout solo con el grid
+        HorizontalLayout botonesLayout = new HorizontalLayout(volverBtn);
+        botonesLayout.setWidthFull();
 
-        productoForm.setOnDelete(producto -> {
-            productoRepository.delete(producto);
-            actualizarProductos();
-            productoForm.setVisible(false);
-        });
-
-        productoGrid.getGrid().asSingleSelect().addValueChangeListener(event -> {
-            Producto seleccionado = event.getValue();
-            if (seleccionado != null) {
-                productoForm.setProveedores(proveedorRepository.findAll());
-                productoForm.setProducto(seleccionado);
-                productoForm.setVisible(true);
-            } else {
-                productoForm.setVisible(false);
-            }
-        });
-
-        // Layout de tabla y formulario
-        HorizontalLayout contenido = new HorizontalLayout(productoGrid, productoForm);
-        contenido.setWidthFull();
-        contenido.setFlexGrow(1, productoGrid);
-        contenido.setFlexGrow(1, productoForm);
-
-        add(new HorizontalLayout(volverBtn, nuevoProducto), contenido);
-
+        add(botonesLayout, productoGrid);
         actualizarProductos();
-        productoForm.setVisible(false);
     }
 
     private void actualizarProductos() {
-        List<Producto> productos = productoRepository.findAll();
-        productoGrid.setItems(productos);
+        try {
+            List<Producto> productos = productoRepository.findAll();
+            productoGrid.setItems(productos);
+            LoggerUI.logInfo("Productos cargados: " + productos.size());
+            if (productos.isEmpty()) {
+                LoggerUI.logError("No hay productos registrados en el inventario.");
+            }
+        } catch (Exception ex) {
+            LoggerUI.logError("Error al cargar productos: " + ex.getMessage());
+        }
     }
 }
