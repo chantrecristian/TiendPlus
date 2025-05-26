@@ -9,11 +9,13 @@ import com.tiendplus.repositories.DetalleVentaRepository;
 import com.tiendplus.repositories.ProductoRepository;
 import com.tiendplus.repositories.VentaRepository;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -55,78 +57,65 @@ public class RegistrarVentaView extends VerticalLayout {
 
     // Etiqueta para mostrar el total de la venta
     private final H3 totalVentaLabel = new H3("Total: $0");
+    private final ComboBox<Producto> comboBoxProducto = new ComboBox<>("Producto");
+
 
     // Constructor con inyección de dependencias
     @Autowired
     
-    public RegistrarVentaView(ProductoRepository productoRepo, VentaRepository ventaRepo,
-                              DetalleVentaRepository detalleRepo, ClienteRepository clienteRepo) {
-        this.productoRepo = productoRepo;
-        this.ventaRepo = ventaRepo;
-        this.detalleRepo = detalleRepo;
-        this.clienteRepo = clienteRepo;
+public RegistrarVentaView(ProductoRepository productoRepo, VentaRepository ventaRepo,
+                          DetalleVentaRepository detalleRepo, ClienteRepository clienteRepo) {
+    this.productoRepo = productoRepo;
+    this.ventaRepo = ventaRepo;
+    this.detalleRepo = detalleRepo;
+    this.clienteRepo = clienteRepo;
 
-        add(new H1("Registrar Venta"));  // Título de la vista
+    add(new H1("Registrar Venta"));
 
-        // Configuración de campos
-        codigoProducto.setClearButtonVisible(true);  // Botón para limpiar el campo de texto
-        cantidadField.setValue(1d);  // Valor inicial de la cantidad
-        nombreProducto.setEnabled(false);  // Deshabilitar el campo de nombre, ya que se llena automáticamente
-        precioUnitario.setEnabled(false);  // Deshabilitar el campo de precio, se llena automáticamente
-        subtotalField.setEnabled(false);  // Deshabilitar el campo de subtotal, ya que es calculado
+    // Configuración del ComboBox
+    comboBoxProducto.setItems(productoRepo.findAll());
+    comboBoxProducto.setItemLabelGenerator(Producto::getNombre);
+    comboBoxProducto.setClearButtonVisible(true);
 
-        // Listener para buscar el producto cuando se cambia el código
-        codigoProducto.addValueChangeListener(event -> buscarProducto());
-
-        // 🔄 Listener para recalcular el subtotal automáticamente
-        cantidadField.addValueChangeListener(event -> calcularSubtotal());
-        precioUnitario.addValueChangeListener(event -> calcularSubtotal());
-
-        // Layout para los campos de entrada
-        HorizontalLayout inputs = new HorizontalLayout(
-            codigoProducto, nombreProducto, precioUnitario, cantidadField, subtotalField, agregarBtn
-        );
-        
-        // Configuración de las columnas del grid
-        grid.setColumns("producto.nombre", "cantidad", "precioUnitario", "subtotal");
-
-        // Añadir los listeners a los botones
-        agregarBtn.addClickListener(e -> agregarProducto());
-        cancelarBtn.addClickListener(e -> cancelarVenta());
-        pagarBtn.addClickListener(e -> mostrarOpcionesPago());
-        pagarFiadoBtn.addClickListener(e -> pagarVentaFiada());
-
-        // Layout para los botones de pago
-        HorizontalLayout botonesPago = new HorizontalLayout(pagarBtn, pagarFiadoBtn, cancelarBtn);
-        
-        // Añadir todos los componentes a la vista
-        add(inputs, grid, totalVentaLabel, botonesPago);
-
-        // Deshabilitar los botones de pago hasta que haya productos en la venta
-        pagarBtn.setEnabled(false);
-    }
-
-    // Método para buscar un producto por su ID
-    private void buscarProducto() {
-        String idText = codigoProducto.getValue();
-        if (idText.isEmpty()) return;
-
-        try {
-            Long id = Long.parseLong(idText);  // Convertir el ID ingresado a número
-            Optional<Producto> productoOpt = productoRepo.findById(id);  // Buscar el producto en la base de datos
-            if (productoOpt.isPresent()) {
-                Producto producto = productoOpt.get();
-                nombreProducto.setValue(producto.getNombre());
-                precioUnitario.setValue(producto.getPrecio());
-                calcularSubtotal();  // Calcular el subtotal con los valores actuales
-            } else {
-                limpiarCamposProducto();
-                Notification.show("Producto no encontrado");  // Notificar si el producto no existe
-            }
-        } catch (NumberFormatException e) {
-            Notification.show("ID inválido");  // Notificar si el ID no es un número válido
+    // Cuando se selecciona un producto, llenar automáticamente los campos
+    comboBoxProducto.addValueChangeListener(event -> {
+        Producto producto = event.getValue();
+        if (producto != null) {
+            nombreProducto.setValue(producto.getNombre());
+            precioUnitario.setValue(producto.getPrecio());
+            calcularSubtotal();
+        } else {
+            limpiarCamposProducto();
         }
-    }
+    });
+
+    cantidadField.setValue(1d);
+    nombreProducto.setEnabled(false);
+    precioUnitario.setEnabled(false);
+    subtotalField.setEnabled(false);
+
+    cantidadField.addValueChangeListener(event -> calcularSubtotal());
+    precioUnitario.addValueChangeListener(event -> calcularSubtotal());
+
+    // Cambiar el layout de entrada para incluir el ComboBox
+    HorizontalLayout inputs = new HorizontalLayout(
+        comboBoxProducto, nombreProducto, precioUnitario, cantidadField, subtotalField, agregarBtn
+    );
+
+    grid.setColumns("producto.nombre", "cantidad", "precioUnitario", "subtotal");
+
+    agregarBtn.addClickListener(e -> agregarProducto());
+    cancelarBtn.addClickListener(e -> cancelarVenta());
+    pagarBtn.addClickListener(e -> mostrarOpcionesPago());
+    pagarFiadoBtn.addClickListener(e -> pagarVentaFiada());
+
+    HorizontalLayout botonesPago = new HorizontalLayout(pagarBtn, pagarFiadoBtn, cancelarBtn);
+
+    add(inputs, grid, totalVentaLabel, botonesPago);
+
+    pagarBtn.setEnabled(false);
+}
+
 
     // Método para calcular el subtotal basado en la cantidad y precio unitario
     private void calcularSubtotal() {
@@ -137,68 +126,72 @@ public class RegistrarVentaView extends VerticalLayout {
     }
 
     // Método para agregar un producto a la venta
-    private void agregarProducto() {
-        if (codigoProducto.getValue().isEmpty() || nombreProducto.getValue().isEmpty() || precioUnitario.getValue() == null) {
-            Notification.show("Debe ingresar un producto válido");
-            return;
-        }
+private void agregarProducto() {
+    Producto productoSeleccionado = comboBoxProducto.getValue();
 
-        int cantidad = cantidadField.getValue().intValue();
-        if (cantidad <= 0) {
-            Notification.show("La cantidad debe ser mayor a 0");
-            return;
-        }
-
-        double subtotal = precioUnitario.getValue() * cantidad;
-        DetalleVenta detalle = new DetalleVenta();
-        detalle.setCantidad(cantidad);
-        detalle.setPrecioUnitario(precioUnitario.getValue());
-        
-
-        Producto producto = productoRepo.findById(Long.parseLong(codigoProducto.getValue())).orElse(null);
-        if (producto != null) {
-            detalle.setProducto(producto);
-        }
-
-        detalles.add(detalle);  // Añadir el producto al detalle de la venta
-        grid.setItems(detalles);  // Actualizar el grid para mostrar los productos añadidos
-        totalVenta += subtotal;  // Actualizar el total de la venta
-        totalVentaLabel.setText("Total: $" + totalVenta);
-
-        limpiarCamposProducto();  // Limpiar los campos para agregar otro producto
-
-        pagarBtn.setEnabled(true);  // Habilitar el botón de pago
-        pagarFiadoBtn.setEnabled(true);  // Habilitar el botón de pago fiado
+    if (productoSeleccionado == null || precioUnitario.getValue() == null) {
+        Notification.show("Debe seleccionar un producto válido");
+        return;
     }
+
+    int cantidad = cantidadField.getValue().intValue();
+    if (cantidad <= 0) {
+        Notification.show("La cantidad debe ser mayor a 0");
+        return;
+    }
+
+    double subtotal = precioUnitario.getValue() * cantidad;
+
+    DetalleVenta detalle = new DetalleVenta();
+    detalle.setProducto(productoSeleccionado);
+    detalle.setCantidad(cantidad);
+    detalle.setPrecioUnitario(precioUnitario.getValue());
+
+    detalles.add(detalle);  // Añadir el producto al detalle de la venta
+    grid.setItems(detalles);  // Actualizar el grid para mostrar los productos añadidos
+    totalVenta += subtotal;  // Actualizar el total de la venta
+    totalVentaLabel.setText("Total: $" + totalVenta);
+
+    limpiarCamposProducto();  // Limpiar los campos para agregar otro producto
+
+    pagarBtn.setEnabled(true);
+    pagarFiadoBtn.setEnabled(true);
+}
+
 
     // Método para mostrar las opciones de pago (efectivo, tarjeta, digital o fiado)
-    private void mostrarOpcionesPago() {
-        Dialog dialog = new Dialog();
-        dialog.setWidth("400px");
+private void mostrarOpcionesPago() {
+    Dialog dialog = new Dialog();
+    dialog.setWidth("400px");
 
-        Button pagarEfectivoBtn = new Button("Pagar en Efectivo", event -> {
-            pagarVenta("EFECTIVO");
-            dialog.close();
-        });
+    Button pagarEfectivoBtn = new Button("Pagar en Efectivo", event -> {
+        pagarVenta("EFECTIVO");
+        dialog.close();
+    });
 
-        Button pagarTarjetaBtn = new Button("Pagar con Tarjeta", event -> {
-            pagarVenta("TARJETA");
-            dialog.close();
-        });
+    Button fiarVentaBtn = new Button("Fiar Venta", event -> {
+        pedirIdClienteParaFiado();
+        dialog.close();
+    });
 
-        Button pagarDigitalBtn = new Button("Pagar Digital", event -> {
-            pagarVenta("DIGITAL");
-            dialog.close();
-        });
+    // Mejora visual: mismo ancho, estilos, espaciado
+    pagarEfectivoBtn.setWidth("48%");
+    fiarVentaBtn.setWidth("48%");
 
-        Button fiarVentaBtn = new Button("Fiar Venta", event -> {
-            pedirIdClienteParaFiado();
-            dialog.close();
-        });
+    HorizontalLayout botonesLayout = new HorizontalLayout(pagarEfectivoBtn, fiarVentaBtn);
+    botonesLayout.setSpacing(true); // activa espacio entre botones
+    botonesLayout.setWidthFull();
+    botonesLayout.setJustifyContentMode(JustifyContentMode.CENTER);
 
-        dialog.add(new VerticalLayout(pagarEfectivoBtn, pagarTarjetaBtn, pagarDigitalBtn, fiarVentaBtn));
-        dialog.open();
-    }
+    VerticalLayout contenido = new VerticalLayout(botonesLayout);
+    contenido.setAlignItems(FlexComponent.Alignment.STRETCH); // hace que ocupen el mismo ancho
+    contenido.setPadding(true);
+    contenido.setSpacing(true);
+
+    dialog.add(contenido);
+    dialog.open();
+}
+
 
     // Método para registrar el pago de la venta con un determinado método
     // 🔥 Método para registrar el pago de la venta con un mensaje de confirmación
