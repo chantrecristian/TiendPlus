@@ -144,7 +144,6 @@ public class MainView extends AppLayout {
         tabs.add(createTab("Inicio", MenuAdminView.class));
         tabs.add(createTab("Inventario", InventarioView.class));
         tabs.add(createTab("Ventas", VentasView.class));
-        tabs.add(createTab("Reportes", ReportesView.class));
         tabs.add(createTab("clientes", ClientesView.class));
 
         return tabs;

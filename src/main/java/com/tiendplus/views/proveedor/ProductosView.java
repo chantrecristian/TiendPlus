@@ -69,6 +69,7 @@ public class ProductosView extends VerticalLayout {
         actualizarProductos();
         productoForm.setVisible(false);
     }
+    
 
     private void actualizarProductos() {
         List<Producto> productos = productoRepository.findAll();
