@@ -10,6 +10,7 @@ import com.tiendplus.repositories.DetalleVentaRepository;
 import com.tiendplus.repositories.ProductoRepository;
 import com.tiendplus.repositories.VentaFiadaRepository;
 import com.tiendplus.repositories.VentaRepository;
+import com.tiendplus.views.cajero.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -31,8 +32,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Route("registrar-venta")
-public class RegistrarVentaView extends VerticalLayout {
+@Route(value = "registrar-venta", layout = MainLayout.class)
+public class RegistrarVentaView extends VerticalLayout{
 
     private final ProductoRepository productoRepo;
     private final VentaRepository ventaRepo;
