@@ -10,11 +10,11 @@ import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
-public class ClienteService {
+public class VentaService {
 
     private final VentaRepository ventaRepository;
 
-    public ClienteService(VentaRepository ventaRepository) {
+    public VentaService(VentaRepository ventaRepository) {
         this.ventaRepository = ventaRepository;
     }
 
