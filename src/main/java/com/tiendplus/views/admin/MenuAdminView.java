@@ -42,8 +42,8 @@ public class MenuAdminView extends VerticalLayout {
         accesos.setPadding(true); // Padding para los elementos dentro del layout
 
         // Crear tarjetas para las secciones: Inventario, Ventas y Reportes
-        VerticalLayout inventarioCard = createCard("📦 Inventario", "Administra tus productos", "inventario");
-        VerticalLayout ventasCard = createCard("💵 Ventas", "Revisa tus transacciones", "ventas");
+        VerticalLayout inventarioCard = createCard("📦 Inventario", "Ver tus productos", "inventario");
+        VerticalLayout ventasCard = createCard("💵 Ventas", "Ver las ventas", "ventas");
         VerticalLayout clientesCard = createCard("👤 Clientes", "Visualiza tus clientes", "clientes");
 
         // Agregar las tarjetas al layout horizontal
