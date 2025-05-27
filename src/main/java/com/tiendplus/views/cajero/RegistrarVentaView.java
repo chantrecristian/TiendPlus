@@ -25,10 +25,11 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Route("registrar-venta")
 public class RegistrarVentaView extends VerticalLayout {
@@ -99,8 +100,25 @@ public RegistrarVentaView(ProductoRepository productoRepo, VentaRepository venta
     HorizontalLayout inputs = new HorizontalLayout(
         comboBoxProducto, nombreProducto, precioUnitario, cantidadField, subtotalField, agregarBtn
     );
+    DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+    symbols.setGroupingSeparator('.');
+    symbols.setDecimalSeparator(',');
+    DecimalFormat formato = new DecimalFormat("#,##0", symbols); // sin decimales
 
-    grid.setColumns("producto.nombre", "cantidad", "precioUnitario", "subtotal");
+    grid.removeAllColumns();
+
+    grid.addColumn(detalle -> detalle.getProducto().getNombre())
+        .setHeader("Producto");
+
+    grid.addColumn(detalle -> detalle.getCantidad())
+        .setHeader("Cantidad");
+
+    grid.addColumn(detalle -> "$" + formato.format(detalle.getPrecioUnitario()))
+        .setHeader("Precio Unitario");
+
+    grid.addColumn(detalle -> "$" + formato.format(detalle.getSubtotal()))
+        .setHeader("Subtotal");
+
 
     agregarBtn.addClickListener(e -> agregarProducto());
     cancelarBtn.addClickListener(e -> cancelarVenta());
@@ -263,8 +281,8 @@ private void registrarVentaFiada(Cliente cliente) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Registrar Cliente para Venta Fiada");
 
-        TextField idClienteField = new TextField("ID Cliente");
-        TextField nombreClienteField = new TextField("Nombre Cliente");
+        TextField idClienteField = new TextField("Numero de Documento");
+        TextField nombreClienteField = new TextField("Nombre");
 
         Button confirmarBtn = new Button("Confirmar", event -> {
             String idCliente = idClienteField.getValue();
@@ -312,7 +330,7 @@ private void registrarVentaFiada(Cliente cliente) {
         limpiarCamposProducto();
 
         pagarBtn.setEnabled(false);
-        pagarFiadoBtn.setEnabled(false);
+        pagarFiadoBtn.setEnabled(true);
 
         getElement().executeJs("console.log('❌ Venta cancelada. Productos limpiados.')");
     }
@@ -323,5 +341,6 @@ private void registrarVentaFiada(Cliente cliente) {
         precioUnitario.clear();
         cantidadField.setValue(1d);
         subtotalField.clear();
+        comboBoxProducto.clear();
     }
 }
