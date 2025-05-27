@@ -3,23 +3,25 @@ package com.tiendplus.models;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "cliente") // 🔧 tabla en singular
 public class Cliente {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "n_documento", nullable = false)
+    private String documentoCliente;  // 🔑 clave primaria
 
+    @Column(name = "nombre")
     private String nombre;
-
-    @Column(name = "n_documento") // Se asegura de que este campo se mapee correctamente con la BD
-    private String nDocumento;
 
     public Cliente() {}
 
-    // Getters y setters
+    // Getters y Setters
+    public String getDocumentoCliente() {
+        return documentoCliente;
+    }
 
-    public Long getId() {
-        return id;
+    public void setDocumentoCliente(String documentoCliente) {
+        this.documentoCliente = documentoCliente;
     }
 
     public String getNombre() {
@@ -28,13 +30,5 @@ public class Cliente {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
-    }
-
-    public String getIdentificacion() { 
-        return nDocumento;
-    }
-
-    public void setIdentificacion(String identificacion) { 
-        this.nDocumento = identificacion;
     }
 }

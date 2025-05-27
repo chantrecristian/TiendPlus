@@ -1,7 +1,8 @@
 package com.tiendplus.controllers;
 
 import com.tiendplus.models.Venta;
-import com.tiendplus.repositories.VentaRepository;
+import com.tiendplus.models.VentaFiada;
+import com.tiendplus.services.VentaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,39 +12,35 @@ import java.util.List;
 @RequestMapping("/ventas")
 public class VentaController {
 
-    @Autowired
-    private VentaRepository ventaRepository;
+    private final VentaService ventaService;
 
-    // 🛒 Registrar una nueva venta
+    @Autowired
+    public VentaController(VentaService ventaService) {
+        this.ventaService = ventaService;
+    }
+
     @PostMapping("/registrar")
     public Venta registrarVenta(@RequestBody Venta venta) {
-        return ventaRepository.save(venta);
+        return ventaService.registrarVenta(venta);
     }
 
-    // 🔍 Obtener todas las ventas
     @GetMapping("/listar")
     public List<Venta> obtenerVentas() {
-        return ventaRepository.findAll();
+        return ventaService.obtenerTodasLasVentas();
     }
 
-    // 🏷 Obtener una venta por su ID
-    @GetMapping("/{id}")
-    public Venta obtenerVentaPorId(@PathVariable Long id) {
-        return ventaRepository.findById(id).orElse(null);
+    @GetMapping("/ventas-fiadas/{DocumentoCliente}")
+    public List<VentaFiada> buscarVentasFiadas(@PathVariable String DocumentoCliente) {
+        return ventaService.obtenerVentasFiadasPorDocumento(DocumentoCliente);
     }
 
-    // 📝 Actualizar una venta
     @PutMapping("/actualizar/{id}")
     public Venta actualizarVenta(@PathVariable Long id, @RequestBody Venta ventaActualizada) {
-        return ventaRepository.findById(id).map(venta -> {
-            venta.setTotal(ventaActualizada.getTotal());
-            return ventaRepository.save(venta);
-        }).orElse(null);
+        return ventaService.actualizarVenta(id, ventaActualizada);
     }
 
-    // 🚮 Eliminar una venta
     @DeleteMapping("/eliminar/{id}")
     public void eliminarVenta(@PathVariable Long id) {
-        ventaRepository.deleteById(id);
+        ventaService.eliminarVenta(id);
     }
 }

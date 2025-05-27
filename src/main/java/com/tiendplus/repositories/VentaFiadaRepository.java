@@ -3,17 +3,16 @@ package com.tiendplus.repositories;
 import com.tiendplus.models.VentaFiada;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 @Repository
-public interface VentaFiadaRepository extends JpaRepository<VentaFiada, Integer> {  
-    // Método para obtener todas las ventas fiadas
-    List<VentaFiada> findAll();
+public interface VentaFiadaRepository extends JpaRepository<VentaFiada, Integer> {
 
-    // Método para buscar ventas fiadas por ID de cliente
-    List<VentaFiada> findByIdCliente(Integer idCliente);
-    
-    // Método para buscar ventas fiadas de un cliente ordenadas por fecha
-    List<VentaFiada> findByIdClienteOrderByFechaVentaDesc(Integer idCliente);
+    List<VentaFiada> findAll();
+    List<VentaFiada> findByDocumentoCliente(String documentoCliente);
+    List<VentaFiada> findByDocumentoClienteOrderByFechaVentaDesc(String documentoCliente);
+    List<VentaFiada> findByDocumentoClienteAndMetodoPago(String documentoCliente, String metodoPago);
+
+    // ✅ Agregando el método de validación de existencia
+    boolean existsByDocumentoCliente(String documentoCliente); 
 }

@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * Repositorio para gestionar clientes en la base de datos.
  */
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
-    Cliente findByNDocumento(String nDocumento); 
+    Cliente findByDocumentoCliente(String documentoCliente);
 }

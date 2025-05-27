@@ -8,6 +8,7 @@ import com.tiendplus.repositories.ClienteRepository;
 import com.tiendplus.repositories.DetalleVentaRepository;
 import com.tiendplus.repositories.ProductoRepository;
 import com.tiendplus.repositories.VentaRepository;
+import com.tiendplus.services.VentaService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -29,114 +30,122 @@ import java.util.Optional;
 @Route("registrar-venta")
 public class RegistrarVentaView extends VerticalLayout {
 
-    // Repositorios para interactuar con la base de datos
+    // Repositorios y servicios
     private final ProductoRepository productoRepo;
     private final VentaRepository ventaRepo;
     private final DetalleVentaRepository detalleRepo;
     private final ClienteRepository clienteRepo;
+    private final VentaService ventaService;
 
-    // Grid para mostrar los detalles de la venta
+    // Componentes UI
     private final Grid<DetalleVenta> grid = new Grid<>(DetalleVenta.class);
-    private final List<DetalleVenta> detalles = new ArrayList<>();  // Lista de detalles de la venta
-    private double totalVenta = 0;  // Variable para almacenar el total de la venta
+    private final List<DetalleVenta> detalles = new ArrayList<>();
+    private double totalVenta = 0;
 
-    // Campos de entrada para capturar la información del producto
+    // Campos de formulario
     private final TextField codigoProducto = new TextField("Id");
     private final TextField nombreProducto = new TextField("Nombre");
     private final NumberField precioUnitario = new NumberField("Precio Unitario");
     private final NumberField cantidadField = new NumberField("Cantidad");
     private final NumberField subtotalField = new NumberField("Subtotal");
 
-    // Botones para agregar productos, cancelar la venta y pagar
+    // Botones
     private final Button agregarBtn = new Button("Agregar Producto");
     private final Button cancelarBtn = new Button("Cancelar Venta");
     private final Button pagarBtn = new Button("Pagar Venta");
     private final Button pagarFiadoBtn = new Button("Pagar Venta Fiada");
 
-    // Etiqueta para mostrar el total de la venta
+    // Etiquetas
     private final H3 totalVentaLabel = new H3("Total: $0");
 
-    // Constructor con inyección de dependencias
     @Autowired
-    
-    public RegistrarVentaView(ProductoRepository productoRepo, VentaRepository ventaRepo,
-                              DetalleVentaRepository detalleRepo, ClienteRepository clienteRepo) {
+    public RegistrarVentaView(ProductoRepository productoRepo, 
+                            VentaRepository ventaRepo,
+                            DetalleVentaRepository detalleRepo, 
+                            ClienteRepository clienteRepo,
+                            VentaService ventaService) {
         this.productoRepo = productoRepo;
         this.ventaRepo = ventaRepo;
         this.detalleRepo = detalleRepo;
         this.clienteRepo = clienteRepo;
+        this.ventaService = ventaService;
 
-        add(new H1("Registrar Venta"));  // Título de la vista
+        inicializarUI();
+    }
+
+    private void inicializarUI() {
+        setPadding(true);
+        setSpacing(true);
+
+        add(new H1("Registrar Venta"));
 
         // Configuración de campos
-        codigoProducto.setClearButtonVisible(true);  // Botón para limpiar el campo de texto
-        cantidadField.setValue(1d);  // Valor inicial de la cantidad
-        nombreProducto.setEnabled(false);  // Deshabilitar el campo de nombre, ya que se llena automáticamente
-        precioUnitario.setEnabled(false);  // Deshabilitar el campo de precio, se llena automáticamente
-        subtotalField.setEnabled(false);  // Deshabilitar el campo de subtotal, ya que es calculado
+        codigoProducto.setClearButtonVisible(true);
+        cantidadField.setValue(1d);
+        nombreProducto.setEnabled(false);
+        precioUnitario.setEnabled(false);
+        subtotalField.setEnabled(false);
 
-        // Listener para buscar el producto cuando se cambia el código
+        // Listeners
         codigoProducto.addValueChangeListener(event -> buscarProducto());
-
-        // 🔄 Listener para recalcular el subtotal automáticamente
         cantidadField.addValueChangeListener(event -> calcularSubtotal());
         precioUnitario.addValueChangeListener(event -> calcularSubtotal());
 
-        // Layout para los campos de entrada
+        // Layouts
         HorizontalLayout inputs = new HorizontalLayout(
             codigoProducto, nombreProducto, precioUnitario, cantidadField, subtotalField, agregarBtn
         );
-        
-        // Configuración de las columnas del grid
-        grid.setColumns("producto.nombre", "cantidad", "precioUnitario", "subtotal");
+        inputs.setAlignItems(Alignment.BASELINE);
 
-        // Añadir los listeners a los botones
+        // Configuración del grid
+        grid.setColumns("producto.nombre", "cantidad", "precioUnitario", "subtotal");
+        grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
+        // Configuración de botones
         agregarBtn.addClickListener(e -> agregarProducto());
         cancelarBtn.addClickListener(e -> cancelarVenta());
         pagarBtn.addClickListener(e -> mostrarOpcionesPago());
         pagarFiadoBtn.addClickListener(e -> pagarVentaFiada());
 
-        // Layout para los botones de pago
         HorizontalLayout botonesPago = new HorizontalLayout(pagarBtn, pagarFiadoBtn, cancelarBtn);
-        
-        // Añadir todos los componentes a la vista
+        botonesPago.setSpacing(true);
+
+        // Agregar componentes a la vista
         add(inputs, grid, totalVentaLabel, botonesPago);
 
-        // Deshabilitar los botones de pago hasta que haya productos en la venta
-        pagarBtn.setEnabled(false);
+        // Estado inicial
+        pagarBtn.setEnabled(true);
+        pagarFiadoBtn.setEnabled(true);
     }
 
-    // Método para buscar un producto por su ID
     private void buscarProducto() {
         String idText = codigoProducto.getValue();
         if (idText.isEmpty()) return;
 
         try {
-            Long id = Long.parseLong(idText);  // Convertir el ID ingresado a número
-            Optional<Producto> productoOpt = productoRepo.findById(id);  // Buscar el producto en la base de datos
+            Long id = Long.parseLong(idText);
+            Optional<Producto> productoOpt = productoRepo.findById(id);
             if (productoOpt.isPresent()) {
                 Producto producto = productoOpt.get();
                 nombreProducto.setValue(producto.getNombre());
                 precioUnitario.setValue(producto.getPrecio());
-                calcularSubtotal();  // Calcular el subtotal con los valores actuales
+                calcularSubtotal();
             } else {
                 limpiarCamposProducto();
-                Notification.show("Producto no encontrado");  // Notificar si el producto no existe
+                Notification.show("Producto no encontrado");
             }
         } catch (NumberFormatException e) {
-            Notification.show("ID inválido");  // Notificar si el ID no es un número válido
+            Notification.show("ID inválido");
         }
     }
 
-    // Método para calcular el subtotal basado en la cantidad y precio unitario
     private void calcularSubtotal() {
         if (precioUnitario.getValue() != null && cantidadField.getValue() != null) {
             double subtotal = precioUnitario.getValue() * cantidadField.getValue();
-            subtotalField.setValue(subtotal);  // Mostrar el subtotal calculado
+            subtotalField.setValue(subtotal);
         }
     }
 
-    // Método para agregar un producto a la venta
     private void agregarProducto() {
         if (codigoProducto.getValue().isEmpty() || nombreProducto.getValue().isEmpty() || precioUnitario.getValue() == null) {
             Notification.show("Debe ingresar un producto válido");
@@ -153,41 +162,39 @@ public class RegistrarVentaView extends VerticalLayout {
         DetalleVenta detalle = new DetalleVenta();
         detalle.setCantidad(cantidad);
         detalle.setPrecioUnitario(precioUnitario.getValue());
-        
+        detalle.setSubtotal(subtotal);
 
         Producto producto = productoRepo.findById(Long.parseLong(codigoProducto.getValue())).orElse(null);
         if (producto != null) {
             detalle.setProducto(producto);
         }
 
-        detalles.add(detalle);  // Añadir el producto al detalle de la venta
-        grid.setItems(detalles);  // Actualizar el grid para mostrar los productos añadidos
-        totalVenta += subtotal;  // Actualizar el total de la venta
-        totalVentaLabel.setText("Total: $" + totalVenta);
+        detalles.add(detalle);
+        grid.setItems(detalles);
+        totalVenta += subtotal;
+        totalVentaLabel.setText(String.format("Total: $%.2f", totalVenta));
 
-        limpiarCamposProducto();  // Limpiar los campos para agregar otro producto
-
-        pagarBtn.setEnabled(true);  // Habilitar el botón de pago
-        pagarFiadoBtn.setEnabled(true);  // Habilitar el botón de pago fiado
+        limpiarCamposProducto();
+        pagarBtn.setEnabled(true);
+        pagarFiadoBtn.setEnabled(true);
     }
 
-    // Método para mostrar las opciones de pago (efectivo, tarjeta, digital o fiado)
     private void mostrarOpcionesPago() {
         Dialog dialog = new Dialog();
         dialog.setWidth("400px");
 
         Button pagarEfectivoBtn = new Button("Pagar en Efectivo", event -> {
-            pagarVenta("EFECTIVO");
+            registrarVenta("EFECTIVO");
             dialog.close();
         });
 
         Button pagarTarjetaBtn = new Button("Pagar con Tarjeta", event -> {
-            pagarVenta("TARJETA");
+            registrarVenta("TARJETA");
             dialog.close();
         });
 
         Button pagarDigitalBtn = new Button("Pagar Digital", event -> {
-            pagarVenta("DIGITAL");
+            registrarVenta("DIGITAL");
             dialog.close();
         });
 
@@ -196,138 +203,112 @@ public class RegistrarVentaView extends VerticalLayout {
             dialog.close();
         });
 
-        dialog.add(new VerticalLayout(pagarEfectivoBtn, pagarTarjetaBtn, pagarDigitalBtn, fiarVentaBtn));
+        VerticalLayout opcionesLayout = new VerticalLayout(
+            pagarEfectivoBtn, pagarTarjetaBtn, pagarDigitalBtn, fiarVentaBtn
+        );
+        opcionesLayout.setSpacing(true);
+        dialog.add(opcionesLayout);
         dialog.open();
     }
 
-    // Método para registrar el pago de la venta con un determinado método
-    // 🔥 Método para registrar el pago de la venta con un mensaje de confirmación
-    private boolean pagarVenta(String metodo) {
+    private void registrarVenta(String metodoPago) {
         try {
             Venta venta = new Venta();
             venta.setFechaVenta(LocalDate.now());
             venta.setTotal(totalVenta);
-            venta.setMetodoPago(metodo);
+            venta.setMetodoPago(metodoPago);
 
-            ventaRepo.save(venta);
-            detalles.forEach(d -> {
-                d.setVenta(venta);
-                d.setSubtotal(d.getCantidad() * d.getPrecioUnitario()); 
-                detalleRepo.save(d);
+            // Asignar venta a cada detalle
+            detalles.forEach(detalle -> {
+                detalle.setVenta(venta);
+                detalle.setSubtotal(detalle.getCantidad() * detalle.getPrecioUnitario());
             });
 
-            Notification notification = Notification.show(
-                "Venta registrada con éxito. Pago realizado con método: " + metodo
-            );
-            notification.setDuration(3000);  // Milisegundos
-            notification.setPosition(Notification.Position.MIDDLE);
+            venta.setDetalles(detalles);
+            ventaService.registrarVenta(venta);
 
+            Notification.show("Venta registrada exitosamente", 3000, Notification.Position.MIDDLE);
             cancelarVenta();
-            return true;
-
         } catch (Exception e) {
-            e.printStackTrace();  // Ver el error en consola
-            Notification notification = Notification.show("Error al registrar la venta: " + e.getMessage());
-            notification.setDuration(3000);
-            notification.setPosition(Notification.Position.MIDDLE);
-            return false;
+            Notification.show("Error al registrar venta: " + e.getMessage(), 5000, Notification.Position.MIDDLE);
         }
     }
 
-    // 📌 Método para registrar la venta fiada asociada a un cliente
-    private Venta venta; // 👈 Declaramos la variable como un atributo de la clase
+    private void pedirIdClienteParaFiado() {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Registrar Cliente para Venta Fiada");
+
+        TextField idClienteField = new TextField("ID Cliente");
+        TextField nombreClienteField = new TextField("Nombre Cliente");
+
+        Button confirmarBtn = new Button("Confirmar", event -> {
+            String idCliente = idClienteField.getValue();
+            String nombreCliente = nombreClienteField.getValue();
+
+            if (idCliente.isEmpty() || nombreCliente.isEmpty()) {
+                Notification.show("Debe ingresar un ID y nombre de cliente válido.");
+                return;
+            }
+
+           Cliente cliente = clienteRepo.findByDocumentoCliente(idCliente); // ✅ Buscando con documentoCliente
+
+            if (cliente == null) {
+                cliente = new Cliente();
+                cliente.setDocumentoCliente(idCliente); // ✅ Guardando con el nombre correcto en código
+                cliente.setNombre(nombreCliente);
+                clienteRepo.save(cliente);
+                Notification.show("Cliente nuevo registrado: " + cliente.getNombre());
+            }
+
+
+            registrarVentaFiada(cliente);
+            dialog.close();
+        });
+
+        VerticalLayout dialogLayout = new VerticalLayout(idClienteField, nombreClienteField, confirmarBtn);
+        dialogLayout.setSpacing(true);
+        dialog.add(dialogLayout);
+        dialog.open();
+    }
 
     private void registrarVentaFiada(Cliente cliente) {
-        if (cliente == null) {
-            Notification.show("Error: Cliente no válido.");
-            return;
+        try {
+            Venta venta = new Venta();
+            venta.setFechaVenta(LocalDate.now());
+            venta.setTotal(totalVenta);
+            venta.setMetodoPago("FIADO");
+            venta.setCliente(cliente);
+
+            // Asignar venta a cada detalle
+            detalles.forEach(detalle -> {
+                detalle.setVenta(venta);
+                detalle.setSubtotal(detalle.getCantidad() * detalle.getPrecioUnitario());
+            });
+
+            venta.setDetalles(detalles);
+            ventaService.registrarVenta(venta);
+
+            Notification.show("Venta fiada registrada exitosamente", 3000, Notification.Position.MIDDLE);
+            cancelarVenta();
+        } catch (Exception e) {
+            Notification.show("Error al registrar venta fiada: " + e.getMessage(), 5000, Notification.Position.MIDDLE);
         }
-    
-        Notification.show("Registrando venta fiada para el cliente: " + cliente.getNombre());
-    
-        double totalVenta = detalles.stream().mapToDouble(DetalleVenta::getSubtotal).sum();
-    
-        venta = new Venta();  // 👈 Ahora usamos la variable de instancia
-        venta.setFechaVenta(LocalDate.now());
-        venta.setTotal(totalVenta);
-        venta.setMetodoPago("FIADO");
-    
-        venta = ventaRepo.save(venta); // 💾 Guardamos la venta y aseguramos que reciba su ID
-    
-        System.out.println("✅ Venta guardada con ID: " + venta.getId());
-    
-        if (venta.getId() == null) {
-            Notification.show("⚠ Error: La venta NO se registró en la base de datos.");
-            return;
-        }
-    
-        detalles.forEach(d -> {
-            d.setVenta(venta);
-            detalleRepo.save(d);
-        });
-    
-        Notification.show("Venta fiada registrada con éxito. Total: $" + totalVenta);
-    
-        cancelarVenta(); // 🔄 Limpiar la vista después del registro
-    }    
- // Método corregido para pedir ID y registrar automáticamente al cliente en ventas fiadas
- private void pedirIdClienteParaFiado() {
-    Dialog dialog = new Dialog();
-    dialog.setHeaderTitle("Registrar Cliente para Venta Fiada");
+    }
 
-    TextField idClienteField = new TextField("ID Cliente");
-    TextField nombreClienteField = new TextField("Nombre Cliente");
+    private void pagarVentaFiada() {
+        getUI().ifPresent(ui -> ui.navigate("pagos-fiados"));
+    }
 
-    Button confirmarBtn = new Button("Confirmar", event -> {
-        String idCliente = idClienteField.getValue();
-        String nombreCliente = nombreClienteField.getValue();
-
-        if (idCliente.isEmpty() || nombreCliente.isEmpty()) {
-            Notification.show("Debe ingresar un ID y nombre de cliente válido.");
-            return;
-        }
-
-        Cliente cliente = clienteRepo.findByNDocumento(idCliente);
-
-        if (cliente == null) {
-            cliente = new Cliente();
-            cliente.setIdentificacion(idCliente);
-            cliente.setNombre(nombreCliente);
-            clienteRepo.save(cliente);
-            Notification.show("Cliente nuevo registrado: " + cliente.getNombre());
-        } else {
-            Notification.show("Cliente encontrado: " + cliente.getNombre());
-        }
-
-        registrarVentaFiada(cliente);
-        dialog.close();  // ✅ Cierra correctamente aquí, después de todo el proceso
-    });
-
-
-    dialog.add(new VerticalLayout(idClienteField, nombreClienteField, confirmarBtn));
-    dialog.open();
-}
-// Método corregido para navegar correctamente a la pantalla de pago-fiados
-private void pagarVentaFiada() {
-    // 🔄 Redirigir a la vista completa para pagar ventas fiadas
-    getUI().ifPresent(ui -> ui.navigate("pagos-fiados")); 
-}
-    // Método para cancelar la venta y limpiar la vista
     private void cancelarVenta() {
         detalles.clear();
         grid.setItems(detalles);
         totalVenta = 0;
         totalVentaLabel.setText("Total: $0");
-
         limpiarCamposProducto();
-        
         pagarBtn.setEnabled(false);
         pagarFiadoBtn.setEnabled(false);
     }
 
-       
-
-    // Método para limpiar los campos de producto
     private void limpiarCamposProducto() {
         codigoProducto.clear();
         nombreProducto.clear();
@@ -335,5 +316,4 @@ private void pagarVentaFiada() {
         cantidadField.setValue(1d);
         subtotalField.clear();
     }
-
 }
