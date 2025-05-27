@@ -10,7 +10,6 @@ import com.tiendplus.repositories.DetalleVentaRepository;
 import com.tiendplus.repositories.ProductoRepository;
 import com.tiendplus.repositories.VentaFiadaRepository;
 import com.tiendplus.repositories.VentaRepository;
-import com.tiendplus.views.cajero.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -25,7 +24,6 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
@@ -33,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Route(value = "registrar-venta", layout = MainLayout.class)
-public class RegistrarVentaView extends VerticalLayout{
+public class RegistrarVentaView extends VerticalLayout {
 
     private final ProductoRepository productoRepo;
     private final VentaRepository ventaRepo;
@@ -59,80 +57,66 @@ public class RegistrarVentaView extends VerticalLayout{
     private final H3 totalVentaLabel = new H3("Total: $0");
     private final ComboBox<Producto> comboBoxProducto = new ComboBox<>("Producto");
 
-
     @Autowired
-    
-public RegistrarVentaView(ProductoRepository productoRepo, VentaRepository ventaRepo,
- DetalleVentaRepository detalleRepo, ClienteRepository clienteRepo, VentaFiadaRepository ventaFiadaRepo) {
-    this.productoRepo = productoRepo;
-    this.ventaRepo = ventaRepo;
-    this.detalleRepo = detalleRepo;
-    this.clienteRepo = clienteRepo;
-    this.ventaFiadaRepo = ventaFiadaRepo;
+    public RegistrarVentaView(ProductoRepository productoRepo, VentaRepository ventaRepo,
+                               DetalleVentaRepository detalleRepo, ClienteRepository clienteRepo,
+                               VentaFiadaRepository ventaFiadaRepo) {
+        this.productoRepo = productoRepo;
+        this.ventaRepo = ventaRepo;
+        this.detalleRepo = detalleRepo;
+        this.clienteRepo = clienteRepo;
+        this.ventaFiadaRepo = ventaFiadaRepo;
 
-    add(new H1("Registrar Venta"));
+        add(new H1("Registrar Venta"));
 
-    // Configuración del ComboBox
-    comboBoxProducto.setItems(productoRepo.findAll());
-    comboBoxProducto.setItemLabelGenerator(Producto::getNombre);
-    comboBoxProducto.setClearButtonVisible(true);
+        comboBoxProducto.setItems(productoRepo.findAll());
+        comboBoxProducto.setItemLabelGenerator(Producto::getNombre);
+        comboBoxProducto.setClearButtonVisible(true);
 
-    // Cuando se selecciona un producto, llenar automáticamente los campos
-    comboBoxProducto.addValueChangeListener(event -> {
-        Producto producto = event.getValue();
-        if (producto != null) {
-            nombreProducto.setValue(producto.getNombre());
-            precioUnitario.setValue(producto.getPrecio());
-            calcularSubtotal();
-        } else {
-            limpiarCamposProducto();
-        }
-    });
+        comboBoxProducto.addValueChangeListener(event -> {
+            Producto producto = event.getValue();
+            if (producto != null) {
+                nombreProducto.setValue(producto.getNombre());
+                precioUnitario.setValue(producto.getPrecio());
+                calcularSubtotal();
+            } else {
+                limpiarCamposProducto();
+            }
+        });
 
-    cantidadField.setValue(1d);
-    nombreProducto.setEnabled(false);
-    precioUnitario.setEnabled(false);
-    subtotalField.setEnabled(false);
+        cantidadField.setValue(1d);
+        nombreProducto.setEnabled(false);
+        precioUnitario.setEnabled(false);
+        subtotalField.setEnabled(false);
 
-    cantidadField.addValueChangeListener(event -> calcularSubtotal());
-    precioUnitario.addValueChangeListener(event -> calcularSubtotal());
+        cantidadField.addValueChangeListener(event -> calcularSubtotal());
+        precioUnitario.addValueChangeListener(event -> calcularSubtotal());
 
-    // Cambiar el layout de entrada para incluir el ComboBox
-    HorizontalLayout inputs = new HorizontalLayout(
-        comboBoxProducto, nombreProducto, precioUnitario, cantidadField, subtotalField, agregarBtn
-    );
-    DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-    symbols.setGroupingSeparator('.');
-    symbols.setDecimalSeparator(',');
-    DecimalFormat formato = new DecimalFormat("#,##0", symbols); // sin decimales
+        HorizontalLayout inputs = new HorizontalLayout(
+                comboBoxProducto, nombreProducto, precioUnitario, cantidadField, subtotalField, agregarBtn);
 
-    grid.removeAllColumns();
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+        symbols.setGroupingSeparator('.');
+        symbols.setDecimalSeparator(',');
+        DecimalFormat formato = new DecimalFormat("#,##0", symbols);
 
-    grid.addColumn(detalle -> detalle.getProducto().getNombre())
-        .setHeader("Producto");
+        grid.removeAllColumns();
+        grid.addColumn(detalle -> detalle.getProducto().getNombre()).setHeader("Producto");
+        grid.addColumn(detalle -> detalle.getCantidad()).setHeader("Cantidad");
+        grid.addColumn(detalle -> "$" + formato.format(detalle.getPrecioUnitario())).setHeader("Precio Unitario");
+        grid.addColumn(detalle -> "$" + formato.format(detalle.getSubtotal())).setHeader("Subtotal");
 
-    grid.addColumn(detalle -> detalle.getCantidad())
-        .setHeader("Cantidad");
+        agregarBtn.addClickListener(e -> agregarProducto());
+        cancelarBtn.addClickListener(e -> cancelarVenta());
+        pagarBtn.addClickListener(e -> mostrarOpcionesPago());
+        pagarFiadoBtn.addClickListener(e -> pagarVentaFiada());
 
-    grid.addColumn(detalle -> "$" + formato.format(detalle.getPrecioUnitario()))
-        .setHeader("Precio Unitario");
+        HorizontalLayout botonesPago = new HorizontalLayout(pagarBtn, pagarFiadoBtn, cancelarBtn);
 
-    grid.addColumn(detalle -> "$" + formato.format(detalle.getSubtotal()))
-        .setHeader("Subtotal");
+        add(inputs, grid, totalVentaLabel, botonesPago);
 
-
-    agregarBtn.addClickListener(e -> agregarProducto());
-    cancelarBtn.addClickListener(e -> cancelarVenta());
-    pagarBtn.addClickListener(e -> mostrarOpcionesPago());
-    pagarFiadoBtn.addClickListener(e -> pagarVentaFiada());
-
-    HorizontalLayout botonesPago = new HorizontalLayout(pagarBtn, pagarFiadoBtn, cancelarBtn);
-
-    add(inputs, grid, totalVentaLabel, botonesPago);
-
-    pagarBtn.setEnabled(false);
-}
-
+        pagarBtn.setEnabled(false);
+    }
 
     private void calcularSubtotal() {
         if (precioUnitario.getValue() != null && cantidadField.getValue() != null) {
@@ -141,73 +125,72 @@ public RegistrarVentaView(ProductoRepository productoRepo, VentaRepository venta
         }
     }
 
-    // Método para agregar un producto a la venta
-private void agregarProducto() {
-    Producto productoSeleccionado = comboBoxProducto.getValue();
+    private void agregarProducto() {
+        Producto productoSeleccionado = comboBoxProducto.getValue();
 
-    if (productoSeleccionado == null || precioUnitario.getValue() == null) {
-        Notification.show("Debe seleccionar un producto válido");
-        return;
+        if (productoSeleccionado == null || precioUnitario.getValue() == null) {
+            Notification.show("Debe seleccionar un producto válido");
+            getElement().executeJs("console.log('⚠️ Producto no válido o precio nulo')");
+            return;
+        }
+
+        int cantidad = cantidadField.getValue().intValue();
+        if (cantidad <= 0) {
+            Notification.show("La cantidad debe ser mayor a 0");
+            getElement().executeJs("console.log('⚠️ Cantidad inválida')");
+            return;
+        }
+
+        double subtotal = precioUnitario.getValue() * cantidad;
+
+        DetalleVenta detalle = new DetalleVenta();
+        detalle.setProducto(productoSeleccionado);
+        detalle.setCantidad(cantidad);
+        detalle.setPrecioUnitario(precioUnitario.getValue());
+
+        detalles.add(detalle);
+        grid.setItems(detalles);
+        totalVenta += subtotal;
+        totalVentaLabel.setText("Total: $" + totalVenta);
+
+        getElement().executeJs("console.log('✅ Producto agregado: $' + $0)", subtotal);
+
+        limpiarCamposProducto();
+
+        pagarBtn.setEnabled(true);
+        pagarFiadoBtn.setEnabled(true);
     }
 
-    int cantidad = cantidadField.getValue().intValue();
-    if (cantidad <= 0) {
-        Notification.show("La cantidad debe ser mayor a 0");
-        return;
+    private void mostrarOpcionesPago() {
+        Dialog dialog = new Dialog();
+        dialog.setWidth("400px");
+
+        Button pagarEfectivoBtn = new Button("Pagar en Efectivo", event -> {
+            pagarVenta("EFECTIVO");
+            dialog.close();
+        });
+
+        Button fiarVentaBtn = new Button("Fiar Venta", event -> {
+            pedirIdClienteParaFiado();
+            dialog.close();
+        });
+
+        pagarEfectivoBtn.setWidth("48%");
+        fiarVentaBtn.setWidth("48%");
+
+        HorizontalLayout botonesLayout = new HorizontalLayout(pagarEfectivoBtn, fiarVentaBtn);
+        botonesLayout.setSpacing(true);
+        botonesLayout.setWidthFull();
+        botonesLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+
+        VerticalLayout contenido = new VerticalLayout(botonesLayout);
+        contenido.setAlignItems(FlexComponent.Alignment.STRETCH);
+        contenido.setPadding(true);
+        contenido.setSpacing(true);
+
+        dialog.add(contenido);
+        dialog.open();
     }
-
-    double subtotal = precioUnitario.getValue() * cantidad;
-
-    DetalleVenta detalle = new DetalleVenta();
-    detalle.setProducto(productoSeleccionado);
-    detalle.setCantidad(cantidad);
-    detalle.setPrecioUnitario(precioUnitario.getValue());
-
-    detalles.add(detalle);  // Añadir el producto al detalle de la venta
-    grid.setItems(detalles);  // Actualizar el grid para mostrar los productos añadidos
-    totalVenta += subtotal;  // Actualizar el total de la venta
-    totalVentaLabel.setText("Total: $" + totalVenta);
-
-    limpiarCamposProducto();  // Limpiar los campos para agregar otro producto
-
-    pagarBtn.setEnabled(true);
-    pagarFiadoBtn.setEnabled(true);
-}
-
-
-    // Método para mostrar las opciones de pago (efectivo o fiado)
-private void mostrarOpcionesPago() {
-    Dialog dialog = new Dialog();
-    dialog.setWidth("400px");
-
-    Button pagarEfectivoBtn = new Button("Pagar en Efectivo", event -> {
-        pagarVenta("EFECTIVO");
-        dialog.close();
-    });
-
-    Button fiarVentaBtn = new Button("Fiar Venta", event -> {
-        pedirIdClienteParaFiado();
-        dialog.close();
-    });
-
-    // Mejora visual: mismo ancho, estilos, espaciado
-    pagarEfectivoBtn.setWidth("48%");
-    fiarVentaBtn.setWidth("48%");
-
-    HorizontalLayout botonesLayout = new HorizontalLayout(pagarEfectivoBtn, fiarVentaBtn);
-    botonesLayout.setSpacing(true); // activa espacio entre botones
-    botonesLayout.setWidthFull();
-    botonesLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-
-    VerticalLayout contenido = new VerticalLayout(botonesLayout);
-    contenido.setAlignItems(FlexComponent.Alignment.STRETCH); // hace que ocupen el mismo ancho
-    contenido.setPadding(true);
-    contenido.setSpacing(true);
-
-    dialog.add(contenido);
-    dialog.open();
-}
-
 
     private boolean pagarVenta(String metodo) {
         try {
@@ -217,109 +200,28 @@ private void mostrarOpcionesPago() {
             venta.setMetodoPago(metodo);
 
             ventaRepo.save(venta);
-            detalles.forEach(d -> {
+            for (DetalleVenta d : detalles) {
                 d.setVenta(venta);
                 d.setSubtotal(d.getCantidad() * d.getPrecioUnitario());
                 detalleRepo.save(d);
-            });
+            }
 
-            Notification.show("Venta registrada con éxito. Pago con: " + metodo);
-            getElement().executeJs("console.log('✅ Venta pagada con " + metodo + " por $" + totalVenta + "')");
+            Notification.show("Venta registrada con "+metodo);
+            getElement().executeJs("console.log('✅ Venta pagada con $0')", metodo);
 
             cancelarVenta();
             return true;
 
         } catch (Exception e) {
-            e.printStackTrace();
-            Notification.show("Error al registrar la venta: " + e.getMessage());
-            getElement().executeJs("console.log('❌ Error al registrar la venta: " + e.getMessage() + "')");
+            Notification.show("Error al registrar venta: " + e.getMessage());
+            getElement().executeJs("console.log('❌ Error: $0')", e.getMessage());
             return false;
         }
     }
 
-    private Venta venta;
-
-private void registrarVentaFiada(Cliente cliente) {
-    if (cliente == null) {
-        Notification.show("Error: Cliente no válido.");
-        getElement().executeJs("console.log('❌ Cliente no válido en venta fiada')");
-        return;
-    }
-
-    Notification.show("Registrando venta fiada para el cliente: " + cliente.getNombre());
-    getElement().executeJs("console.log('📦 Registrando venta fiada para cliente: " + cliente.getNombre() + "')");
-
-    double totalVenta = detalles.stream().mapToDouble(DetalleVenta::getSubtotal).sum();
-
-    venta = new Venta();
-    venta.setFechaVenta(LocalDate.now());
-    venta.setTotal(totalVenta);
-    venta.setMetodoPago("FIADO");
-    venta.setCliente(cliente); // si tienes relación directa en tu entidad Venta
-
-    venta = ventaRepo.save(venta);
-
-    for (DetalleVenta d : detalles) {
-        d.setVenta(venta);
-        detalleRepo.save(d);
-    }
-
-    // REGISTRAR EN TABLA VENTA_FIADA
-    VentaFiada ventaFiada = new VentaFiada();
-    ventaFiada.setFechaVenta(LocalDate.now());
-    ventaFiada.setIdCliente(cliente.getId());
-    ventaFiada.setMontoFiado(totalVenta);
-
-    ventaFiadaRepo.save(ventaFiada);
-
-    Notification.show("Venta fiada registrada con éxito. Total: $" + totalVenta);
-    getElement().executeJs("console.log('✅ Venta fiada y detalles guardados')");
-
-    cancelarVenta();
-}
-
-    private void pedirIdClienteParaFiado() {
-        Dialog dialog = new Dialog();
-        dialog.setHeaderTitle("Registrar Cliente para Venta Fiada");
-
-        TextField idClienteField = new TextField("Numero de Documento");
-        TextField nombreClienteField = new TextField("Nombre");
-
-        Button confirmarBtn = new Button("Confirmar", event -> {
-            String idCliente = idClienteField.getValue();
-            String nombreCliente = nombreClienteField.getValue();
-
-            if (idCliente.isEmpty() || nombreCliente.isEmpty()) {
-                Notification.show("Debe ingresar un ID y nombre de cliente válido.");
-                getElement().executeJs("console.log('⚠️ Datos incompletos para cliente fiado')");
-                return;
-            }
-
-            Cliente cliente = clienteRepo.findByNDocumento(idCliente);
-
-            if (cliente == null) {
-                cliente = new Cliente();
-                cliente.setIdentificacion(idCliente);
-                cliente.setNombre(nombreCliente);
-                clienteRepo.save(cliente);
-                Notification.show("Cliente nuevo registrado: " + cliente.getNombre());
-                getElement().executeJs("console.log('🆕 Cliente nuevo registrado: " + cliente.getNombre() + "')");
-            } else {
-                Notification.show("Cliente encontrado: " + cliente.getNombre());
-                getElement().executeJs("console.log('📌 Cliente existente: " + cliente.getNombre() + "')");
-            }
-
-            registrarVentaFiada(cliente);
-            dialog.close();
-        });
-
-        dialog.add(new VerticalLayout(idClienteField, nombreClienteField, confirmarBtn));
-        dialog.open();
-    }
-
     private void pagarVentaFiada() {
         getUI().ifPresent(ui -> ui.navigate("pagos-fiados"));
-        getElement().executeJs("console.log('🔁 Redirigiendo a vista de pagos fiados')");
+        getElement().executeJs("console.log('🔁 Redirigiendo a pagos fiados')");
     }
 
     private void cancelarVenta() {
@@ -333,7 +235,7 @@ private void registrarVentaFiada(Cliente cliente) {
         pagarBtn.setEnabled(false);
         pagarFiadoBtn.setEnabled(true);
 
-        getElement().executeJs("console.log('❌ Venta cancelada. Productos limpiados.')");
+        getElement().executeJs("console.log('❌ Venta cancelada.')");
     }
 
     private void limpiarCamposProducto() {
@@ -344,4 +246,75 @@ private void registrarVentaFiada(Cliente cliente) {
         subtotalField.clear();
         comboBoxProducto.clear();
     }
+
+    private void pedirIdClienteParaFiado() {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Registrar Cliente para Venta Fiada");
+
+        TextField idClienteField = new TextField("Numero de Documento");
+        TextField nombreClienteField = new TextField("Nombre");
+
+        Button confirmarBtn = new Button("Confirmar", event -> {
+            String idCliente = idClienteField.getValue();
+            String nombreCliente = nombreClienteField.getValue();
+
+            if (idCliente.isEmpty() || nombreCliente.isEmpty()) {
+                Notification.show("Debe ingresar un ID y nombre válido.");
+                getElement().executeJs("console.log('⚠️ Datos cliente incompletos')");
+                return;
+            }
+
+            Cliente cliente = clienteRepo.findByNDocumento(idCliente);
+            if (cliente == null) {
+                cliente = new Cliente();
+                cliente.setIdentificacion(idCliente);
+                cliente.setNombre(nombreCliente);
+                clienteRepo.save(cliente);
+                Notification.show("Cliente nuevo registrado");
+                getElement().executeJs("console.log('🆕 Cliente registrado: $0')", nombreCliente);
+            } else {
+                Notification.show("Cliente encontrado: " + cliente.getNombre());
+                getElement().executeJs("console.log('📌 Cliente existente: $0')", cliente.getNombre());
+            }
+
+            registrarVentaFiada(cliente);
+            dialog.close();
+        });
+
+        dialog.add(new VerticalLayout(idClienteField, nombreClienteField, confirmarBtn));
+        dialog.open();
+    }
+
+    private void registrarVentaFiada(Cliente cliente) {
+        if (cliente == null) {
+            Notification.show("Error: Cliente no válido.");
+            getElement().executeJs("console.log('❌ Cliente inválido en venta fiada')");
+            return;
+        }
+
+        venta = new Venta();
+        venta.setFechaVenta(LocalDate.now());
+        venta.setTotal(totalVenta);
+        venta.setMetodoPago("FIADO");
+        venta.setCliente(cliente);
+
+        venta = ventaRepo.save(venta);
+        for (DetalleVenta d : detalles) {
+            d.setVenta(venta);
+            detalleRepo.save(d);
+        }
+
+        VentaFiada ventaFiada = new VentaFiada();
+        ventaFiada.setFechaVenta(LocalDate.now());
+        ventaFiada.setIdCliente(cliente.getId());
+        ventaFiada.setMontoFiado(totalVenta);
+        ventaFiadaRepo.save(ventaFiada);
+
+        Notification.show("Venta fiada registrada. Total: $" + totalVenta);
+        getElement().executeJs("console.log('✅ Venta fiada registrada')");
+
+        cancelarVenta();
+    }
+
+    private Venta venta;
 }
