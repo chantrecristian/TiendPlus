@@ -1,5 +1,6 @@
 package com.tiendplus.views.cajero;
 
+import com.tiendplus.complements.MainLayout;
 import com.tiendplus.models.Cliente;
 import com.tiendplus.models.DetalleVenta;
 import com.tiendplus.models.Producto;
@@ -10,7 +11,6 @@ import com.tiendplus.repositories.DetalleVentaRepository;
 import com.tiendplus.repositories.ProductoRepository;
 import com.tiendplus.repositories.VentaFiadaRepository;
 import com.tiendplus.repositories.VentaRepository;
-import com.tiendplus.views.cajero.MainLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;

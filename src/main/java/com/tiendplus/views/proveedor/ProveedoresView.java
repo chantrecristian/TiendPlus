@@ -1,6 +1,7 @@
 package com.tiendplus.views.proveedor;
 
 import com.tiendplus.views.proveedor.grids.ProveedorGrid;
+import com.tiendplus.complements.MainLayout2;
 import com.tiendplus.models.Producto;
 import com.tiendplus.models.Proveedor;
 import com.tiendplus.repositories.ProductoRepository;

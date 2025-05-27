@@ -1,4 +1,4 @@
-package com.tiendplus.views.cajero;
+package com.tiendplus.complements;
 
 import com.tiendplus.alertas.LoggerUI;
 import com.vaadin.flow.component.Component;

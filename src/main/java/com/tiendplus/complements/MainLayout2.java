@@ -1,4 +1,4 @@
-package com.tiendplus.views.proveedor;
+package com.tiendplus.complements;
 
 import com.tiendplus.alertas.LoggerUI;
 import com.vaadin.flow.component.Component;
@@ -11,6 +11,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinSession;
 import com.tiendplus.views.cajero.VentasView;
+import com.tiendplus.views.proveedor.ProductosView;
+import com.tiendplus.views.proveedor.ProveedoresView;
 
 public class MainLayout2 extends AppLayout {
 
