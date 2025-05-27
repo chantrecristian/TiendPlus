@@ -1,5 +1,6 @@
 package com.tiendplus.views.cajero;
 
+import com.tiendplus.complements.MainLayout;
 import com.tiendplus.models.Cliente;
 import com.tiendplus.models.DetalleVenta;
 import com.tiendplus.models.Producto;
