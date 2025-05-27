@@ -1,4 +1,4 @@
-package com.tiendplus.views.proveedor;
+package com.tiendplus.views.cajero;
 
 import com.tiendplus.alertas.LoggerUI;
 import com.vaadin.flow.component.Component;
@@ -8,13 +8,11 @@ import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.VaadinSession;
-import com.tiendplus.views.cajero.VentasView;
 
-public class MainLayout2 extends AppLayout {
+public class MainLayout extends AppLayout {
 
-    public MainLayout2() {
+    public MainLayout() {
         setPrimarySection(Section.NAVBAR);
         addToNavbar(createNavbar()); // Agrega la barra de navegación personalizada
     }
@@ -34,13 +32,7 @@ public class MainLayout2 extends AppLayout {
         H1 title = new H1("TiendPlus");
         title.getStyle().set("margin", "0").set("font-size", "1.5em");
 
-        // Enlaces de navegación
-        RouterLink productosLink = new RouterLink("Productos", ProductosView.class);
-        RouterLink proveedoresLink = new RouterLink("Proveedores", ProveedoresView.class);
-        HorizontalLayout links = new HorizontalLayout(productosLink, proveedoresLink);
-        links.setSpacing(true);
-
-        // Menú del usuario con avatar
+        // Avatar con menú
         Avatar avatar = new Avatar("Usuario");
         avatar.setImage("icons/user.png");
         avatar.setHeight("36px");
@@ -48,15 +40,15 @@ public class MainLayout2 extends AppLayout {
 
         ContextMenu userMenu = new ContextMenu(avatar);
         userMenu.setOpenOnClick(true);
-
-         userMenu.addItem("Administrador", e -> {
+        
+        userMenu.addItem("Administrador", e -> {
             LoggerUI.logInfo("Navegando a vista de productos del proveedor.");
             getUI().ifPresent(ui -> ui.navigate("menu-admin"));
         });
 
-        userMenu.addItem("Cajero", e -> {
-            LoggerUI.logInfo("Navegando a vista de cajero.");
-            getUI().ifPresent(ui -> ui.navigate("registrar-venta"));
+        userMenu.addItem("Proveedor", e -> {
+            LoggerUI.logInfo("Navegando a vista de productos del proveedor.");
+            getUI().ifPresent(ui -> ui.navigate("proveedor/productos"));
         });
 
         userMenu.addItem("Cerrar sesión", e -> {
@@ -65,10 +57,14 @@ public class MainLayout2 extends AppLayout {
             getUI().ifPresent(ui -> ui.getPage().setLocation("login"));
         });
 
-        // Organización del contenido en la barra
+        // Añadimos título y avatar al navbar
+        navbar.add(title, avatar);
+
+        // Expandir el título para que quede a la izquierda y avatar a la derecha
         navbar.expand(title);
+
+        // Justificar contenido entre ellos (espacio entre)
         navbar.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
-        navbar.add(links, avatar);
 
         return navbar;
     }
